@@ -1047,20 +1047,20 @@ def save_slot(self, group_id: Groupid, qqid: QQid,
 	if membership is None: raise UserNotInGroup
 	today, _ = pcr_datetime(group.game_server)
 	if clean_flag:
-		if membership.last_save_slot != today: raise UserError('您今天还没有SL过')
+		if membership.last_save_slot != today: raise UserError('今日未使用SL')
 		membership.last_save_slot = 0
 		membership.save()
 		return '已取消SL'
 	if only_check:
 		return (membership.last_save_slot == today)
 	if membership.last_save_slot == today:
-		raise UserError('您今天已经SL过了，该不会退游戏了吧 Σ(っ °Д °;)っ')
+		raise UserError('您今天已经SL过了')
 	membership.last_save_slot = today
 	membership.save()
 
 	# refresh
 	self.get_member_list(group_id, nocache = True)
-	return 'SL用掉惹 Σ(っ °Д °;)っ'
+	return '已记录SL'
 
 #记录伤害/清空伤害
 def report_hurt(self, s, hurt, group_id:Groupid, qqid:QQid, clean_type = 0):
@@ -1087,14 +1087,14 @@ def report_hurt(self, s, hurt, group_id:Groupid, qqid:QQid, clean_type = 0):
 	if clean_type == 0:
 		challenging_member_list[boss_num][str_qqid]['s'] = s
 		challenging_member_list[boss_num][str_qqid]['damage'] = hurt
-		ret_msg = '已记录伤害，小心不要手滑哦~ ♪(´▽｀)'
+		ret_msg = '已记录伤害'
 	elif clean_type == 1:
 		if challenging_member_list[boss_num][str_qqid]['damage'] == 0:
-			ret_msg = '您还没有报伤害呢'
+			ret_msg = '您还未报伤害'
 		else:
 			challenging_member_list[boss_num][str_qqid]['s'] = 0
 			challenging_member_list[boss_num][str_qqid]['damage'] = 0
-			ret_msg = '取消成功~'
+			ret_msg = '取消成功'
 
 	group.challenging_member_list = json.dumps(challenging_member_list)
 	group.save()
