@@ -2,7 +2,6 @@ from typing import Dict, List
 import json
 
 from ...ybdata import Clan_group
-from .realize import safe_load_json
 
 
 class SubscribeHandler:
@@ -17,7 +16,10 @@ class SubscribeHandler:
         原始类型: Dict[str, Dict[str, str]] = {Boss编号: {预约QQ号: 留言}}
         目标类型: Dict[int, Dict[int, str]] = {Boss编号: {预约QQ号: 留言}}
         """
-        data: Dict[str, Dict[str, str]] = safe_load_json(group.subscribe_list, {})
+        if group.subscribe_list:
+            data: Dict[str, Dict[str, str]] = json.loads(group.subscribe_list)
+        else:
+            data = {}
         new_data: Dict[int, Dict[int, str]] = {}
         for boss_no, boss_subscribe_data in data.items():
             for subscribe_qq, subscribe_note in boss_subscribe_data.items():
