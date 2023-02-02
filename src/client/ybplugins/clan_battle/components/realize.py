@@ -407,7 +407,7 @@ def switch_data_slot(self, group_id: Groupid, battle_id: int):
 		group.now_cycle_boss_health = data["now_cycle_boss_health"]
 		group.next_cycle_boss_health = data["next_cycle_boss_health"]
 		group.challenging_member_list = data["challenging_member_list"]
-		group.subscribe_list = {} # data["subscribe_list"]
+		group.subscribe_list = data["subscribe_list"]
 		group.challenging_start_time = data["challenging_start_time"]
 	else:	#没有备份数据则新建
 		now_cycle_boss_health = {}
@@ -729,7 +729,7 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 			back_msg.append(f'==={real_num}号Boss===')
 			print(type(subscribe_list[real_num]))
 			for boss_qqid, qqid_note in subscribe_list[real_num].items():
-				back_msg.append(f'{self._get_nickname_by_qqid(int(boss_qqid))}' + f'：{qqid_note}' if qqid_note else '')
+				back_msg.append(f'{self._get_nickname_by_qqid(int(boss_qqid))}' + (f'：{qqid_note}' if qqid_note else ''))
 		back_msg.append('='*12)
 		return '\n'.join(back_msg)
 	else:
