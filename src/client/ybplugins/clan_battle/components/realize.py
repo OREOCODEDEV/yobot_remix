@@ -769,14 +769,14 @@ def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None):
 		qqid: 不填为删除特定boss的整个预约记录，填则删除特定用户的单个预约记录
 	'''
 	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
-	qqid_str = str(qqid) # JSON类型key必须为str
 	subscribe_list = safe_load_json(group.subscribe_list, {})
 	if not boss_num: GroupError('您取消了个寂寞')
 	if len(subscribe_list) == 0 or boss_num not in subscribe_list:
 		raise GroupError('您还没有预约这个boss')
-	if not qqid_str:
+	if not qqid:
 		del subscribe_list[boss_num]
 	else:
+		qqid_str = str(qqid) # JSON类型key必须为str
 		if qqid_str not in subscribe_list[boss_num]:
 			raise GroupError('您还没有预约这个boss')
 		subscribe_list[boss_num].pop(qqid_str)
