@@ -718,7 +718,7 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 	if msg == '表':
 		back_msg = []
 		subscribe_list = safe_load_json(group.subscribe_list, {})
-		if not group.subscribe_list:
+		if not subscribe_list:
 			raise GroupError('目前没有人预约任意一个Boss')
 		back_msg.append("预约表：")
 		for boss_num in range(5):
