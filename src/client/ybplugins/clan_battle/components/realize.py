@@ -792,7 +792,7 @@ def get_subscribe_list(self, group_id: Groupid):
 	for boss_num, qqid_list in subscribe_handler.data.items():
 		back_info.append({
 			'boss': boss_num,
-			'qqid': qqid_list.keys(),
+			'qqid': subscribe_handler.get_subscribe_list(boss_num),
 			'message': None,
 		})
 	return back_info

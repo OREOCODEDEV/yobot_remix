@@ -77,7 +77,7 @@ class SubscribeHandler:
         """
         if boss_id not in self._data:
             return []
-        return self._data[boss_id].keys()
+        return list(self._data[boss_id].keys())
 
     def get_note(self, user_id: int, boss_id: int) -> str:
         if not self.is_subscribed(user_id, boss_id):
