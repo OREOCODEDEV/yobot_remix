@@ -733,7 +733,7 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 		subscribe_list = safe_load_json(group.subscribe_list, {})
 		boss_num = msg
 		if boss_num not in subscribe_list:
-			subscribe_list[boss_num] = []
+			subscribe_list[boss_num] = {}
 		if qqid in subscribe_list[boss_num]:
 			raise GroupError('你已经预约过了')
 		subscribe_list[boss_num][qqid] = note

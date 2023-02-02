@@ -91,7 +91,7 @@ class Clan_group(_BaseModel):
     #       }, }
     challenging_member_list = TextField(null=True)
 
-    # 预约表（json格式文本） 结构：{boss_num:[qqid: message, ], }
+    # 预约表（json格式文本） 结构：{boss_num:{qqid: message, }, }
     subscribe_list = TextField(null=True)
 
     challenging_start_time = BigIntegerField(default=0)
