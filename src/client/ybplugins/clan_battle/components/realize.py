@@ -731,9 +731,9 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 		return '\n'.join(back_msg)
 	else:
 		boss_num = int(msg)
-		if subscribe_handler.is_subscribed(user_id=qqid, boss_id=boss_num):
+		if subscribe_handler.is_subscribed(qqid, boss_num):
 			raise GroupError('您已经预约过了')
-		subscribe_handler.subscribe(user_id=qqid, boss_id=boss_num, note=note)
+		subscribe_handler.subscribe(qqid, boss_num, note)
 		subscribe_handler.save()
 		return '预约成功'
 
