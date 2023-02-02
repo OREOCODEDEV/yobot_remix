@@ -712,6 +712,7 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 		msg: 第几个王 or '表'
 	"""
 	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
+	qqid_str = str(qqid) # JSON类型key必须为str
 	if group is None: raise GroupNotExist
 	if not msg: GroupError('您预约了一个空气')
 	if msg == '表':
@@ -719,7 +720,6 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 		if group.subscribe_list is None:
 			raise GroupError('目前没有人预约任意一个Boss')
 		subscribe_list = safe_load_json(group.subscribe_list, {})
-		print(subscribe_list)
 		back_msg.append("预约表：")
 		for boss_num in range(5):
 			real_num = str(boss_num + 1)
@@ -735,15 +735,10 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 		boss_num = msg
 		if boss_num not in subscribe_list:
 			subscribe_list[boss_num] = {}
-		if qqid in subscribe_list[boss_num]:
+		if qqid_str in subscribe_list[boss_num]:
 			raise GroupError('你已经预约过了')
-		print(subscribe_list)
-		subscribe_list[boss_num][qqid] = note
-		print(type(qqid))
-		print(qqid)
-		print(subscribe_list)
+		subscribe_list[boss_num][qqid_str] = note
 		group.subscribe_list = json.dumps(subscribe_list)
-		print(group.subscribe_list)
 		group.save()
 		return f'预约{boss_num}王成功！下个{boss_num}王出现时会at提醒。'
 
@@ -753,6 +748,7 @@ def subscribe_remind(self, group_id:Groupid, boss_num):
 	subscribe_list = safe_load_json(group.subscribe_list, {})
 	if len(subscribe_list) == 0 or boss_num not in subscribe_list: return
 	qqid_list = subscribe_list[boss_num].keys()
+	qqid_list = map(int, qqid_list) # JSON类型key必须为str，需要手动转为int
 	asyncio.ensure_future(self.api.send_group_msg(
 		group_id = group_id,
 		message = f'船新的{boss_num}王来惹~ _(:з)∠)_\n' + ' '.join(atqq(qqid) for qqid in qqid_list),
@@ -769,16 +765,17 @@ def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None):
 		qqid: 不填为删除特定boss的整个预约记录，填则删除特定用户的单个预约记录
 	'''
 	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
+	qqid_str = str(qqid) # JSON类型key必须为str
 	subscribe_list = safe_load_json(group.subscribe_list, {})
 	if not boss_num: GroupError('您取消了个寂寞')
 	if len(subscribe_list) == 0 or boss_num not in subscribe_list:
 		raise GroupError('您还没有预约这个boss')
-	if not qqid:
+	if not qqid_str:
 		del subscribe_list[boss_num]
 	else:
-		if qqid not in subscribe_list[boss_num]:
+		if qqid_str not in subscribe_list[boss_num]:
 			raise GroupError('您还没有预约这个boss')
-		subscribe_list[boss_num].pop(qqid)
+		subscribe_list[boss_num].pop(qqid_str)
 		if len(subscribe_list[boss_num]) == 0:
 			del subscribe_list[boss_num]
 	group.subscribe_list = json.dumps(subscribe_list)
@@ -799,7 +796,7 @@ def get_subscribe_list(self, group_id: Groupid):
 	for boss_num, qqid_list in subscribe_list.items():
 		back_info.append({
 			'boss': int(boss_num),
-			'qqid': qqid_list,
+			'qqid': qqid_list.keys(),
 			'message': None,
 		})
 	return back_info
