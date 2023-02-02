@@ -58,6 +58,11 @@ class SubscribeHandler:
         if not self._data[boss_id]:  # 删除没有预约的Boss
             self._data.pop(boss_id)
 
+    def unsubscribe_all(self, boss_id: int) -> None:
+        if boss_id not in self._data:
+            return
+        self._data.pop(boss_id)
+
     def get_subscribe_list(self, boss_id: int) -> List[int]:
         """
         获取预约Boss的用户列表
@@ -68,6 +73,11 @@ class SubscribeHandler:
         if boss_id not in self._data:
             return []
         return self._data[boss_id].keys()
+
+    def get_note(self, user_id: int, boss_id: int) -> str:
+        if not self.is_subscribed(user_id, boss_id):
+            return ""
+        return self._data[boss_id][user_id]
 
     @property
     def have_subscribe(self) -> bool:

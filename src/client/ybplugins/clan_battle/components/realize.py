@@ -739,12 +739,15 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 #预约提醒
 def subscribe_remind(self, group_id:Groupid, boss_num):
 	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
-	subscribe_list = safe_load_json(group.subscribe_list, {})
-	if len(subscribe_list) == 0 or boss_num not in subscribe_list: return
+	subscribe_handler = SubscribeHandler(group=group)
+	boss_num = int(boss_num)
+	if not subscribe_handler.get_subscribe_list(boss_num):
+		return
 	hint_message = f'{boss_num}号Boss已刷新\n'
-	for i, j in subscribe_list[boss_num].items():
-		hint_message += atqq(int(i))
-		hint_message += ('：' + j) if j else ''
+	for user_id in subscribe_handler.get_subscribe_list(boss_num):
+		hint_message += atqq(user_id)
+		note = subscribe_handler.get_note(user_id, boss_num)
+		hint_message += ('：' + note) if note else ''
 		hint_message += '\n'
 	hint_message = hint_message[:-1]
 	asyncio.ensure_future(self.api.send_group_msg(
@@ -763,21 +766,16 @@ def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None):
 		qqid: 不填为删除特定boss的整个预约记录，填则删除特定用户的单个预约记录
 	'''
 	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
-	subscribe_list = safe_load_json(group.subscribe_list, {})
 	if not boss_num: GroupError('您取消了个寂寞')
-	if len(subscribe_list) == 0 or boss_num not in subscribe_list:
-		raise GroupError(f'您没有预约{boss_num}号Boss')
+	subscribe_handler = SubscribeHandler(group=group)
+	boss_num = int(boss_num)
 	if not qqid:
-		del subscribe_list[boss_num]
+		subscribe_handler.unsubscribe_all(boss_num)
 	else:
-		qqid_str = str(qqid) # JSON类型key必须为str
-		if qqid_str not in subscribe_list[boss_num]:
+		if not subscribe_handler.is_subscribed(qqid, boss_num):
 			raise GroupError('您还没有预约这个boss')
-		subscribe_list[boss_num].pop(qqid_str)
-		if len(subscribe_list[boss_num]) == 0:
-			del subscribe_list[boss_num]
-	group.subscribe_list = json.dumps(subscribe_list)
-	group.save()
+		subscribe_handler.unsubscribe(qqid, boss_num)
+		subscribe_handler.save()
 	return '取消成功~'
 
 #获取预约列表
