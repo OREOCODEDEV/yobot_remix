@@ -37,6 +37,8 @@ class SubscribeHandler:
         :param boss_id: Boss编号
         :param note: 留言
         """
+        if boss_id not in self._data:
+            self._data[boss_id] = {}
         self._data[boss_id][user_id] = note
 
     def is_subscribed(self, user_id: int, boss_id: int) -> bool:
