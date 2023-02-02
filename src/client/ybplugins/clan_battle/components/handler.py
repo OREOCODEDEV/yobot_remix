@@ -59,6 +59,11 @@ class SubscribeHandler:
             self._data.pop(boss_id)
 
     def unsubscribe_all(self, boss_id: int) -> None:
+        """
+        取消某个Boss的所有预约
+
+        :param boss_id: Boss编号
+        """
         if boss_id not in self._data:
             return
         self._data.pop(boss_id)
