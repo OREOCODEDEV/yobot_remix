@@ -407,7 +407,7 @@ def switch_data_slot(self, group_id: Groupid, battle_id: int):
 		group.now_cycle_boss_health = data["now_cycle_boss_health"]
 		group.next_cycle_boss_health = data["next_cycle_boss_health"]
 		group.challenging_member_list = data["challenging_member_list"]
-		group.subscribe_list = data["subscribe_list"]
+		group.subscribe_list = {} # data["subscribe_list"]
 		group.challenging_start_time = data["challenging_start_time"]
 	else:	#没有备份数据则新建
 		now_cycle_boss_health = {}
