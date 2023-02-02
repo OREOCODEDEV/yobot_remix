@@ -737,10 +737,11 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 			subscribe_list[boss_num] = {}
 		if qqid in subscribe_list[boss_num]:
 			raise GroupError('你已经预约过了')
+		print(subscribe_list)
 		subscribe_list[boss_num][qqid] = note
 		print(type(qqid))
 		print(qqid)
-		print(group.subscribe_list)
+		print(subscribe_list)
 		group.subscribe_list = json.dumps(subscribe_list)
 		print(group.subscribe_list)
 		group.save()
