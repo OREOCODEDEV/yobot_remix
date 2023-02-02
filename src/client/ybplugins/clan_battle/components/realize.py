@@ -794,9 +794,10 @@ def get_subscribe_list(self, group_id: Groupid):
 	subscribe_list = safe_load_json(group.subscribe_list, {})
 	back_info = []
 	for boss_num, qqid_list in subscribe_list.items():
+		qqid_list = list(map(int, qqid_list.keys()))
 		back_info.append({
 			'boss': int(boss_num),
-			'qqid': qqid_list.keys(),
+			'qqid': qqid_list,
 			'message': None,
 		})
 	return back_info
