@@ -719,7 +719,7 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 		back_msg = []
 		subscribe_list = safe_load_json(group.subscribe_list, {})
 		if not subscribe_list:
-			raise GroupError('目前没有人预约任意一个Boss')
+			raise GroupError('没有预约记录')
 		back_msg.append("预约表：")
 		for boss_num in range(5):
 			real_num = str(boss_num + 1)
@@ -736,18 +736,18 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 		if boss_num not in subscribe_list:
 			subscribe_list[boss_num] = {}
 		if qqid_str in subscribe_list[boss_num]:
-			raise GroupError('你已经预约过了')
+			raise GroupError('您已经预约过了')
 		subscribe_list[boss_num][qqid_str] = note
 		group.subscribe_list = json.dumps(subscribe_list)
 		group.save()
-		return f'预约{boss_num}王成功！下个{boss_num}王出现时会at提醒。'
+		return '预约成功'
 
 #预约提醒
 def subscribe_remind(self, group_id:Groupid, boss_num):
 	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
 	subscribe_list = safe_load_json(group.subscribe_list, {})
 	if len(subscribe_list) == 0 or boss_num not in subscribe_list: return
-	hint_message = f'船新的{boss_num}王来惹~ _(:з)∠)_\n'
+	hint_message = f'{boss_num}号Boss已刷新\n'
 	for i, j in subscribe_list[boss_num].items():
 		hint_message += atqq(int(i))
 		hint_message += ('：' + j) if j else ''
@@ -772,7 +772,7 @@ def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None):
 	subscribe_list = safe_load_json(group.subscribe_list, {})
 	if not boss_num: GroupError('您取消了个寂寞')
 	if len(subscribe_list) == 0 or boss_num not in subscribe_list:
-		raise GroupError('您还没有预约这个boss')
+		raise GroupError(f'您没有预约{boss_num}号Boss')
 	if not qqid:
 		del subscribe_list[boss_num]
 	else:
