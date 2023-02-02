@@ -723,10 +723,9 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg):
 			real_num = str(boss_num + 1)
 			if (real_num not in subscribe_list) or (not subscribe_list[real_num]):
 				continue
-			boss_msg = f'==={real_num}号Boss===\n'
+			back_msg.append(f'==={real_num}号Boss===')
 			for boss_qqid in subscribe_list[real_num]:
-				boss_msg += f'{self._get_nickname_by_qqid(int(boss_qqid))}\n'
-			back_msg.append(boss_msg)
+				back_msg.append(f'{self._get_nickname_by_qqid(int(boss_qqid))}')
 		back_msg.append('='*12)
 		return '\n'.join(back_msg)
 	else:
