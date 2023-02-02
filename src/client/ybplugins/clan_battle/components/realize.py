@@ -11,6 +11,8 @@ from io import BytesIO
 from PIL import Image, ImageFont, ImageDraw
 from typing import Any, Dict, List, Optional, Union, Tuple
 
+from .handler import SubscribeHandler
+
 from ..typing import ClanBattleReport, Groupid, Pcr_date, QQid
 from ...web_util import async_cached_func
 from ..util import atqq, pcr_datetime, pcr_timestamp, timed_cached_func
@@ -712,34 +714,27 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 		msg: 第几个王 or '表'
 	"""
 	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
-	qqid_str = str(qqid) # JSON类型key必须为str
 	if group is None: raise GroupNotExist
 	if not msg: GroupError('您预约了一个空气')
+	subscribe_handler = SubscribeHandler(group=group)
 	if msg == '表':
 		back_msg = []
-		subscribe_list = safe_load_json(group.subscribe_list, {})
-		if not subscribe_list:
+		if not subscribe_handler.have_subscribe:
 			raise GroupError('没有预约记录')
 		back_msg.append("预约表：")
-		for boss_num in range(5):
+		for boss_num,subscribe_data in subscribe_handler.data.items():
 			real_num = str(boss_num + 1)
-			if (real_num not in subscribe_list) or (not subscribe_list[real_num]):
-				continue
 			back_msg.append(f'==={real_num}号Boss===')
-			for boss_qqid, qqid_note in subscribe_list[real_num].items():
-				back_msg.append(f'{self._get_nickname_by_qqid(int(boss_qqid))}' + (f'：{qqid_note}' if qqid_note else ''))
+			for boss_qqid,qqid_note in subscribe_data.items():
+				back_msg.append(f'{self._get_nickname_by_qqid(boss_qqid)}' + (f'：{qqid_note}' if qqid_note else ''))
 		back_msg.append('='*12)
 		return '\n'.join(back_msg)
 	else:
-		subscribe_list = safe_load_json(group.subscribe_list, {})
-		boss_num = msg
-		if boss_num not in subscribe_list:
-			subscribe_list[boss_num] = {}
-		if qqid_str in subscribe_list[boss_num]:
+		boss_num = int(msg)
+		if subscribe_handler.is_subscribed(user_id=qqid, boss_id=boss_num):
 			raise GroupError('您已经预约过了')
-		subscribe_list[boss_num][qqid_str] = note
-		group.subscribe_list = json.dumps(subscribe_list)
-		group.save()
+		subscribe_handler.subscribe(user_id=qqid, boss_id=boss_num, note=note)
+		subscribe_handler.save()
 		return '预约成功'
 
 #预约提醒
