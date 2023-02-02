@@ -740,7 +740,9 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 		subscribe_list[boss_num][qqid] = note
 		print(type(qqid))
 		print(qqid)
+		print(group.subscribe_list)
 		group.subscribe_list = json.dumps(subscribe_list)
+		print(group.subscribe_list)
 		group.save()
 		return f'预约{boss_num}王成功！下个{boss_num}王出现时会at提醒。'
 
