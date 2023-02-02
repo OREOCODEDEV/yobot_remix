@@ -47,6 +47,8 @@ class SubscribeHandler:
         :param boss_id: Boss编号
         :return: 是否预约了该Boss
         """
+        if boss_id not in self._data:
+            return False
         return user_id in self._data[boss_id]
 
     def unsubscribe(self, user_id: int, boss_id: int) -> None:
