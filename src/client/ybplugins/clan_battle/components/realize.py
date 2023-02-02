@@ -719,6 +719,7 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 		if group.subscribe_list is None:
 			raise GroupError('目前没有人预约任意一个Boss')
 		subscribe_list = safe_load_json(group.subscribe_list, {})
+		print(subscribe_list)
 		back_msg.append("预约表：")
 		for boss_num in range(5):
 			real_num = str(boss_num + 1)
@@ -734,11 +735,11 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 		boss_num = msg
 		if boss_num not in subscribe_list:
 			subscribe_list[boss_num] = {}
-		print(type(qqid))
-		print(qqid)
 		if qqid in subscribe_list[boss_num]:
 			raise GroupError('你已经预约过了')
 		subscribe_list[boss_num][qqid] = note
+		print(type(qqid))
+		print(qqid)
 		group.subscribe_list = json.dumps(subscribe_list)
 		group.save()
 		return f'预约{boss_num}王成功！下个{boss_num}王出现时会at提醒。'
