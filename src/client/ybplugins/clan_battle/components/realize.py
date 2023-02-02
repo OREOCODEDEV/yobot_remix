@@ -719,15 +719,15 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 		if group.subscribe_list is None:
 			raise GroupError('目前没有人预约任意一个Boss')
 		subscribe_list = safe_load_json(group.subscribe_list, {})
-		_logger.info("="*20)
-		_logger.info(subscribe_list)
+		print("="*20)
+		print(subscribe_list)
 		back_msg.append("预约表：")
 		for boss_num in range(5):
 			real_num = str(boss_num + 1)
 			if (real_num not in subscribe_list) or (not subscribe_list[real_num]):
 				continue
 			back_msg.append(f'==={real_num}号Boss===')
-			_logger.info(type(subscribe_list[real_num]))
+			print(type(subscribe_list[real_num]))
 			for boss_qqid, qqid_note in subscribe_list[real_num].items():
 				back_msg.append(f'{self._get_nickname_by_qqid(int(boss_qqid))}' + f'：{qqid_note}' if qqid_note else '')
 		back_msg.append('='*12)
