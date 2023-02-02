@@ -787,13 +787,12 @@ def get_subscribe_list(self, group_id: Groupid):
 		group_id: QQ群号
 	"""
 	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
-	subscribe_list = safe_load_json(group.subscribe_list, {})
+	subscribe_handler = SubscribeHandler(group=group)
 	back_info = []
-	for boss_num, qqid_list in subscribe_list.items():
-		qqid_list = list(map(int, qqid_list.keys()))
+	for boss_num, qqid_list in subscribe_handler.data.items():
 		back_info.append({
-			'boss': int(boss_num),
-			'qqid': qqid_list,
+			'boss': boss_num,
+			'qqid': qqid_list.keys(),
 			'message': None,
 		})
 	return back_info
