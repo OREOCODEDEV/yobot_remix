@@ -85,8 +85,8 @@ class SubscribeHandler:
 
         :return: 预约数据
         """
-        return self._data
+        return dict(sorted(self._data.items(), key=lambda i: i[0]))
 
-    def save(self):
+    def save(self) -> None:
         self._clan_group.subscribe_list = json.dumps(self._data)
         self._clan_group.save()

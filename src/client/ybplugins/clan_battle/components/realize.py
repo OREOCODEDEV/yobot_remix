@@ -722,10 +722,9 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 		if not subscribe_handler.have_subscribe:
 			raise GroupError('没有预约记录')
 		back_msg.append("预约表：")
-		for boss_num,subscribe_data in subscribe_handler.data.items():
-			real_num = str(boss_num + 1)
-			back_msg.append(f'==={real_num}号Boss===')
-			for boss_qqid,qqid_note in subscribe_data.items():
+		for boss_num, subscribe_data in subscribe_handler.data.items():
+			back_msg.append(f'==={boss_num}号Boss===')
+			for boss_qqid, qqid_note in subscribe_data.items():
 				back_msg.append(f'{self._get_nickname_by_qqid(boss_qqid)}' + (f'：{qqid_note}' if qqid_note else ''))
 		back_msg.append('='*12)
 		return '\n'.join(back_msg)
