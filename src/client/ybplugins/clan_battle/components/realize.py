@@ -726,8 +726,8 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg):
 			boss_msg = f'==={real_num}号Boss===\n'
 			for boss_qqid in subscribe_list[real_num]:
 				boss_msg += f'{self._get_nickname_by_qqid(int(boss_qqid))}\n'
-			boss_msg += '=' * 12
 			back_msg.append(boss_msg)
+		back_msg.append('='*12)
 		return '\n'.join(back_msg)
 	else:
 		subscribe_list = safe_load_json(group.subscribe_list, {})
