@@ -768,7 +768,7 @@ def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None):
 	print(boss_num)
 	print(type(boss_num))
 	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
-	if not boss_num: GroupError('您取消了个寂寞')
+	if not boss_num: raise GroupError('您取消了个寂寞')
 	subscribe_handler = SubscribeHandler(group=group)
 	boss_num = int(boss_num)
 	if not qqid:
