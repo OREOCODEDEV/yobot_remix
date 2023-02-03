@@ -613,9 +613,7 @@ def challenge(self,
 	)
 
 	if defeat:
-		all_clear = 0
-		for _, _health in now_cycle_boss_health.items():
-			if _health == 0: all_clear += 1
+		all_clear = list(now_cycle_boss_health.values()).count(0)
 		if all_clear == 5:			# 检查当前周目的boss是否已经全部击杀
 			group.boss_cycle += 1	# 进入下一周目
 			next_cycle_level = self._level_by_cycle(group.boss_cycle+1, group.game_server)
