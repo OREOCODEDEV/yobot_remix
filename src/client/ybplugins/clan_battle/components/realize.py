@@ -770,10 +770,8 @@ def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None):
 	subscribe_handler = SubscribeHandler(group=group)
 	boss_num = int(boss_num)
 	if not qqid:
-		print(f"Will unsubscribe Boss: {boss_num}")
 		subscribe_handler.unsubscribe_all(boss_num)
 	else:
-		print(f"Unsubscribe : {boss_num}, {qqid}")
 		if not subscribe_handler.is_subscribed(qqid, boss_num):
 			raise GroupError('您还没有预约这个boss')
 		subscribe_handler.unsubscribe(qqid, boss_num)
