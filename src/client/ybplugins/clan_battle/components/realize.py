@@ -649,7 +649,7 @@ def challenge(self,
 			nik, behalf_nik, boss_num, challenge_damage, finished+1, '剩余刀' if is_continue else '完整刀')
 	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
 	msg += '\n'.join(self.challenger_info_small(group, boss_num))
-
+	print(group.subscribe_list)
 	self._boss_status[group_id].set_result((self._boss_data_dict(group), group.boss_cycle, msg))
 	self._boss_status[group_id] = asyncio.get_event_loop().create_future()
 
