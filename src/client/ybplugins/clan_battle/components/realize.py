@@ -627,6 +627,8 @@ def challenge(self,
 	group.now_cycle_boss_health = json.dumps(now_cycle_boss_health)
 	group.next_cycle_boss_health = json.dumps(next_cycle_boss_health)
 	challenge.save()
+	print(Clan_group.get_or_none(group_id=group_id).subscribe_list)
+	print(group.subscribe_list)
 	group.save()
 
 	# 取消申请出刀
@@ -753,7 +755,6 @@ def subscribe_remind(self, group_id:Groupid, boss_num):
 		message = hint_message,
 	))
 	subscribe_cancel(self, group_id, boss_num)
-	print(Clan_group.get_or_none(group_id=group_id).subscribe_list)
 
 #取消预约
 def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None):
