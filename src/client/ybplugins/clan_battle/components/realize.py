@@ -752,7 +752,9 @@ def subscribe_remind(self, group_id:Groupid, boss_num):
 		group_id = group_id,
 		message = hint_message,
 	))
+	print(1)
 	subscribe_cancel(self, group_id, boss_num)
+	print(3)
 	print(group.subscribe_list)
 
 #取消预约
@@ -774,7 +776,11 @@ def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None):
 		if not subscribe_handler.is_subscribed(qqid, boss_num):
 			raise GroupError('您还没有预约这个boss')
 		subscribe_handler.unsubscribe(qqid, boss_num)
+	print(2)
+	print(subscribe_handler._data)
 	subscribe_handler.save()
+	print(4)
+	print(group.subscribe_list)
 	return '取消成功~'
 
 #获取预约列表
