@@ -531,7 +531,7 @@ def challenge(self,
 		boss_num = self.get_in_boss_num(group_id, qqid)
 
 	if not boss_num:
-		raise GroupError('格式错误：未指定挑战的Boss\n只有申请出刀后才可以直接报伤害\n请先申请出刀或在报刀命令中指定造成伤害的Boss')
+		raise GroupError('又不申请出刀又不说打哪个王，报啥子刀啊 (╯‵□′)╯︵┻━┻')
 	if not self.check_blade(group_id, qqid):
 		if behalf:
 			self.apply_for_challenge(is_continue, group_id, behalf, boss_num, qqid, False)
@@ -811,14 +811,14 @@ def put_on_the_tree(self, group_id: Groupid, qqid: QQid, message=None):
 	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
 	if group is None: raise GroupNotExist
 	user = User.get_or_none(qqid=qqid)
-	if user is None: raise GroupError('未加入公会，请先发送“加入公会”')
+	if user is None: raise GroupError('请先加入公会')
 	if not self.check_blade(group_id, qqid):
-		raise GroupError('您还未申请出刀')
+		raise GroupError('你都没申请出刀，挂啥子树啊 (╯‵□′)╯︵┻━┻')
 
 	challenging_member_list = safe_load_json(group.challenging_member_list, {})
 	boss_num = self.get_in_boss_num(group_id, qqid)
 	if not boss_num :
-		raise GroupError('您还未申请出刀')
+		raise GroupError('你都没申请出刀，挂啥子树啊 (╯‵□′)╯︵┻━┻')
 	if challenging_member_list[boss_num][str(qqid)]['tree']:
 		raise GroupError('您已经在树上了')
 	
@@ -828,7 +828,7 @@ def put_on_the_tree(self, group_id: Groupid, qqid: QQid, message=None):
 	group.save()
 	self._boss_status[group_id].set_result((self._boss_data_dict(group), group.boss_cycle, '挂树惹~ (っ °Д °;)っ'))
 	self._boss_status[group_id] = asyncio.get_event_loop().create_future()
-	return '已挂树'
+	return '挂树惹~ (っ °Д °;)っ'
 
 #下树
 def take_it_of_the_tree(self, group_id: Groupid, qqid: QQid, boss_num=0, take_it_type = 0, send_web = True):
@@ -846,14 +846,14 @@ def take_it_of_the_tree(self, group_id: Groupid, qqid: QQid, boss_num=0, take_it
 	if group is None: raise GroupNotExist
 	
 	user = User.get_or_none(qqid=qqid)
-	if user is None: raise GroupError('未加入公会，请先发送“加入公会”')
+	if user is None: raise GroupError('请先加入公会')
 
 	challenging_member_list = safe_load_json(group.challenging_member_list, {})
 
 	if take_it_type == 0:
 		boss_num = self.get_in_boss_num(group_id, qqid)
 		if not boss_num :
-			raise GroupError('您还未申请出刀')
+			raise GroupError('你都没申请出刀，下啥子树啊 (╯‵□′)╯︵┻━┻')
 		qqid = str(qqid)
 		challenging_member_list[boss_num][qqid]['tree'] = False
 		challenging_member_list[boss_num][qqid]['msg'] = None
@@ -866,12 +866,12 @@ def take_it_of_the_tree(self, group_id: Groupid, qqid: QQid, boss_num=0, take_it
 		if len(notice) > 0:
 			asyncio.ensure_future(self.api.send_group_msg(
 				group_id = group_id,
-				message = '已下树\n'+'\n'.join(notice),
+				message = '可以下树惹~ _(:з)∠)_\n'+'\n'.join(notice),
 			))
 	if send_web:
 		self._boss_status[group_id].set_result((self._boss_data_dict(group), group.boss_cycle, '下树惹~ _(:з)∠)_'))
 		self._boss_status[group_id] = asyncio.get_event_loop().create_future()
-	return '已下树'
+	return '下树惹~ _(:з)∠)_'
 
 #检查能否继续挑战下个boss
 def check_next_boss(self, group_id:Groupid, boss_num):
@@ -905,7 +905,7 @@ def apply_for_challenge(self, is_continue, group_id:Groupid, qqid:QQid, boss_num
 	if membership is None:raise UserNotInGroup
 
 	if self.check_blade(group_id, challenger):
-		raise GroupError('你已经申请过了')
+		raise GroupError('你已经申请过了 (╯‵□′)╯︵┻━┻')
 
 	now_cycle_boss_health = safe_load_json(group.now_cycle_boss_health, {})
 	if (not check_next_boss(self, group_id, boss_num) 
@@ -975,7 +975,7 @@ def cancel_blade(self, group_id: Groupid, qqid: QQid, boss_num=0, cancel_type=1,
 		ret = '已取消所有'
 	elif cancel_type == 1 :
 		_boss_num = self.get_in_boss_num(group_id, qqid)
-		if not _boss_num : raise GroupError('您还未申请出刀')
+		if not _boss_num : raise GroupError('你都没申请出刀，取啥子消啊 (╯‵□′)╯︵┻━┻')
 		challenging_list = safe_load_json(group.challenging_member_list, {})
 		del challenging_list[_boss_num][str(qqid)]
 		if len(challenging_list[_boss_num]) == 0: del challenging_list[_boss_num]
@@ -1077,7 +1077,7 @@ def report_hurt(self, s, hurt, group_id:Groupid, qqid:QQid, clean_type = 0):
 	if group is None: raise GroupNotExist
 	boss_num = self.get_in_boss_num(group_id, qqid)
 	if clean_type != 2 and not boss_num:
-		raise GroupError('您还未申请出刀')
+		raise GroupError('你都没申请出刀，报啥子伤害啊 (╯‵□′)╯︵┻━┻')
 
 	ret_msg = ''
 	challenging_member_list = safe_load_json(group.challenging_member_list, {})
