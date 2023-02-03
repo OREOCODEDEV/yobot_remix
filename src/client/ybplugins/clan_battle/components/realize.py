@@ -778,6 +778,7 @@ def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None):
 			raise GroupError('您还没有预约这个boss')
 		subscribe_handler.unsubscribe(qqid, boss_num)
 	subscribe_handler.save()
+	print(subscribe_handler.data)
 	return '取消成功~'
 
 #获取预约列表
