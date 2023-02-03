@@ -129,7 +129,11 @@ def execute(self, match_num, ctx):
 
 	elif match_num == 4:  # 报刀
 		match = re.match(r'^报刀 ?(?:[\-\=]([1-5]))? ?(\d+)?([Ww万Kk千])? *(补偿|补|b|bc)? *(?:\[CQ:at,qq=(\d+)\])? *(昨[日天])?$', cmd)
-		if not match: return '报刀格式:\n报刀 100w（需先申请出刀）\n报刀 -1 100w（-1表示报在1王）'
+		if not match:
+			# 尝试使用另外的匹配模式
+			match = re.match(r'^报刀 ?([1-5])? (\d+)?([Ww万Kk千])? *(补偿|补|b|bc)? *(?:\[CQ:at,qq=(\d+)\])? *(昨[日天])?$', cmd)
+			if not match:
+				return '报刀格式:\n报刀 100w（需先申请出刀）\n报刀 -1 100w（-1表示报在1王）'
 		unit = {
 			'W': 10000,
 			'w': 10000,
@@ -187,10 +191,10 @@ def execute(self, match_num, ctx):
 		return boss_status
 
 	elif match_num == 7:  # 预约
-		match = re.match(r'^预约([1-5]|表) *([:：](.*))?$', cmd)
+		match = re.match(r'^预约([1-5]|表) *(?:[:：](.*))?$', cmd)
 		if not match: return
 		msg = match.group(1)
-		note = match.group(3) or None
+		note = match.group(2) or None
 		try:
 			back_msg = self.subscribe(group_id, user_id, msg, note)
 		except ClanBattleError as e:
@@ -232,7 +236,7 @@ def execute(self, match_num, ctx):
 
 	elif match_num == 12:  # 申请
 		match = re.match(r'^申请出刀(| )([1-5]) *(补偿|补|b|bc)? *(?:\[CQ:at,qq=(\d+)\])? *$', cmd)
-		if not match: return '申请出刀格式错误惹(っ °Д °;)っ\n如：申请出刀1 or 申请出刀1补偿@xxx'
+		if not match: return '格式错误\n申请出刀1 或 申请出刀1补偿@xxx'
 		boss_num = match.group(2)
 		is_continue = match.group(3) and True or False
 		behalf = match.group(4) and int(match.group(4))
@@ -303,7 +307,7 @@ def execute(self, match_num, ctx):
 
 	elif match_num == 17:  # 报伤害
 		match = re.match(r'^报伤害(?:剩| |)(?:(\d+(?:s|S|秒))?(?:打了| |)(\d+)(?:w|W|万))? *(?:\[CQ:at,qq=(\d+)\])? *$', cmd)
-		if not match: return '格式出错(O×O)，如“报伤害 2s200w”或“报伤害 3s300w@xxx”'
+		if not match: return '格式错误\n报伤害 2s200w 或 报伤害 3s300w@xxx”'
 		s = match.group(1) or 1
 		if s != 1: s = re.sub(r'([a-z]|[A-Z]|秒)', '', s)
 		hurt = match.group(2) and int(match.group(2))

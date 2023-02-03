@@ -531,7 +531,7 @@ def challenge(self,
 		boss_num = self.get_in_boss_num(group_id, qqid)
 
 	if not boss_num:
-		raise GroupError('又不申请出刀又不说打哪个王，报啥子刀啊 (╯‵□′)╯︵┻━┻')
+		raise GroupError('格式错误：未指定挑战的Boss\n只有申请出刀后才可以直接报伤害\n请先申请出刀或在报刀命令中指定造成伤害的Boss')
 	if not self.check_blade(group_id, qqid):
 		if behalf:
 			self.apply_for_challenge(is_continue, group_id, behalf, boss_num, qqid, False)
@@ -767,7 +767,7 @@ def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None):
 		qqid: 不填为删除特定boss的整个预约记录，填则删除特定用户的单个预约记录
 	'''
 	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
-	if not boss_num: GroupError('您取消了个寂寞')
+	if not boss_num: raise GroupError('您取消了个寂寞')
 	subscribe_handler = SubscribeHandler(group=group)
 	boss_num = int(boss_num)
 	if not qqid:
@@ -811,14 +811,14 @@ def put_on_the_tree(self, group_id: Groupid, qqid: QQid, message=None):
 	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
 	if group is None: raise GroupNotExist
 	user = User.get_or_none(qqid=qqid)
-	if user is None: raise GroupError('请先加入公会')
+	if user is None: raise GroupError('未加入公会，请先发送“加入公会”')
 	if not self.check_blade(group_id, qqid):
-		raise GroupError('你都没申请出刀，挂啥子树啊 (╯‵□′)╯︵┻━┻')
+		raise GroupError('您还未申请出刀')
 
 	challenging_member_list = safe_load_json(group.challenging_member_list, {})
 	boss_num = self.get_in_boss_num(group_id, qqid)
 	if not boss_num :
-		raise GroupError('你都没申请出刀，挂啥子树啊 (╯‵□′)╯︵┻━┻')
+		raise GroupError('您还未申请出刀')
 	if challenging_member_list[boss_num][str(qqid)]['tree']:
 		raise GroupError('您已经在树上了')
 	
@@ -828,7 +828,7 @@ def put_on_the_tree(self, group_id: Groupid, qqid: QQid, message=None):
 	group.save()
 	self._boss_status[group_id].set_result((self._boss_data_dict(group), group.boss_cycle, '挂树惹~ (っ °Д °;)っ'))
 	self._boss_status[group_id] = asyncio.get_event_loop().create_future()
-	return '挂树惹~ (っ °Д °;)っ'
+	return '已挂树'
 
 #下树
 def take_it_of_the_tree(self, group_id: Groupid, qqid: QQid, boss_num=0, take_it_type = 0, send_web = True):
@@ -846,14 +846,14 @@ def take_it_of_the_tree(self, group_id: Groupid, qqid: QQid, boss_num=0, take_it
 	if group is None: raise GroupNotExist
 	
 	user = User.get_or_none(qqid=qqid)
-	if user is None: raise GroupError('请先加入公会')
+	if user is None: raise GroupError('未加入公会，请先发送“加入公会”')
 
 	challenging_member_list = safe_load_json(group.challenging_member_list, {})
 
 	if take_it_type == 0:
 		boss_num = self.get_in_boss_num(group_id, qqid)
 		if not boss_num :
-			raise GroupError('你都没申请出刀，下啥子树啊 (╯‵□′)╯︵┻━┻')
+			raise GroupError('您还未申请出刀')
 		qqid = str(qqid)
 		challenging_member_list[boss_num][qqid]['tree'] = False
 		challenging_member_list[boss_num][qqid]['msg'] = None
@@ -866,12 +866,12 @@ def take_it_of_the_tree(self, group_id: Groupid, qqid: QQid, boss_num=0, take_it
 		if len(notice) > 0:
 			asyncio.ensure_future(self.api.send_group_msg(
 				group_id = group_id,
-				message = '可以下树惹~ _(:з)∠)_\n'+'\n'.join(notice),
+				message = '已下树\n'+'\n'.join(notice),
 			))
 	if send_web:
 		self._boss_status[group_id].set_result((self._boss_data_dict(group), group.boss_cycle, '下树惹~ _(:з)∠)_'))
 		self._boss_status[group_id] = asyncio.get_event_loop().create_future()
-	return '下树惹~ _(:з)∠)_'
+	return '已下树'
 
 #检查能否继续挑战下个boss
 def check_next_boss(self, group_id:Groupid, boss_num):
@@ -905,7 +905,7 @@ def apply_for_challenge(self, is_continue, group_id:Groupid, qqid:QQid, boss_num
 	if membership is None:raise UserNotInGroup
 
 	if self.check_blade(group_id, challenger):
-		raise GroupError('你已经申请过了 (╯‵□′)╯︵┻━┻')
+		raise GroupError('你已经申请过了')
 
 	now_cycle_boss_health = safe_load_json(group.now_cycle_boss_health, {})
 	if (not check_next_boss(self, group_id, boss_num) 
@@ -975,7 +975,7 @@ def cancel_blade(self, group_id: Groupid, qqid: QQid, boss_num=0, cancel_type=1,
 		ret = '已取消所有'
 	elif cancel_type == 1 :
 		_boss_num = self.get_in_boss_num(group_id, qqid)
-		if not _boss_num : raise GroupError('你都没申请出刀，取啥子消啊 (╯‵□′)╯︵┻━┻')
+		if not _boss_num : raise GroupError('您还未申请出刀')
 		challenging_list = safe_load_json(group.challenging_member_list, {})
 		del challenging_list[_boss_num][str(qqid)]
 		if len(challenging_list[_boss_num]) == 0: del challenging_list[_boss_num]
@@ -1046,20 +1046,20 @@ def save_slot(self, group_id: Groupid, qqid: QQid,
 	if membership is None: raise UserNotInGroup
 	today, _ = pcr_datetime(group.game_server)
 	if clean_flag:
-		if membership.last_save_slot != today: raise UserError('您今天还没有SL过')
+		if membership.last_save_slot != today: raise UserError('今日未使用SL')
 		membership.last_save_slot = 0
 		membership.save()
 		return '已取消SL'
 	if only_check:
 		return (membership.last_save_slot == today)
 	if membership.last_save_slot == today:
-		raise UserError('您今天已经SL过了，该不会退游戏了吧 Σ(っ °Д °;)っ')
+		raise UserError('您今天已经SL过了')
 	membership.last_save_slot = today
 	membership.save()
 
 	# refresh
 	self.get_member_list(group_id, nocache = True)
-	return 'SL用掉惹 Σ(っ °Д °;)っ'
+	return '已记录SL'
 
 #记录伤害/清空伤害
 def report_hurt(self, s, hurt, group_id:Groupid, qqid:QQid, clean_type = 0):
@@ -1077,7 +1077,7 @@ def report_hurt(self, s, hurt, group_id:Groupid, qqid:QQid, clean_type = 0):
 	if group is None: raise GroupNotExist
 	boss_num = self.get_in_boss_num(group_id, qqid)
 	if clean_type != 2 and not boss_num:
-		raise GroupError('你都没申请出刀，报啥子伤害啊 (╯‵□′)╯︵┻━┻')
+		raise GroupError('您还未申请出刀')
 
 	ret_msg = ''
 	challenging_member_list = safe_load_json(group.challenging_member_list, {})
@@ -1086,14 +1086,14 @@ def report_hurt(self, s, hurt, group_id:Groupid, qqid:QQid, clean_type = 0):
 	if clean_type == 0:
 		challenging_member_list[boss_num][str_qqid]['s'] = s
 		challenging_member_list[boss_num][str_qqid]['damage'] = hurt
-		ret_msg = '已记录伤害，小心不要手滑哦~ ♪(´▽｀)'
+		ret_msg = '已记录伤害'
 	elif clean_type == 1:
 		if challenging_member_list[boss_num][str_qqid]['damage'] == 0:
-			ret_msg = '您还没有报伤害呢'
+			ret_msg = '您还未报伤害'
 		else:
 			challenging_member_list[boss_num][str_qqid]['s'] = 0
 			challenging_member_list[boss_num][str_qqid]['damage'] = 0
-			ret_msg = '取消成功~'
+			ret_msg = '取消成功'
 
 	group.challenging_member_list = json.dumps(challenging_member_list)
 	group.save()
