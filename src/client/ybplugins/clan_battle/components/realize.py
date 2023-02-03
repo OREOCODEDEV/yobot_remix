@@ -769,6 +769,7 @@ def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None):
 	boss_num = int(boss_num)
 	if not qqid:
 		subscribe_handler.unsubscribe_all(boss_num)
+		raise Exception("Breakpoint!")
 	else:
 		if not subscribe_handler.is_subscribed(qqid, boss_num):
 			raise GroupError('您还没有预约这个boss')
