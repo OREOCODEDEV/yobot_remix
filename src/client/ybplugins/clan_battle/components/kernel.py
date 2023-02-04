@@ -344,6 +344,20 @@ def execute(self, match_num, ctx):
 	#TODO 19:更改预约模式
 		print("完成度0%")
 
+	elif match_num == 20:  #重置进度
+		if cmd != "重置进度":
+			return
+		try:
+			if (ctx['sender']['role'] not in ['owner', 'admin']) and (ctx['user_id'] not in self.setting['super-admin']):
+				return '只有管理员或主人可使用重置进度功能'
+			current_data_slot_record = self.get_data_slot_record_count(group_id)
+			self.switch_data_slot(group_id, current_data_slot_record + 1)
+		except ClanBattleError as e:
+			_logger.info('群聊 失败 {} {} {}'.format(user_id, group_id, cmd))
+			return str(e)
+		_logger.info('群聊 成功 {} {} {}'.format(user_id, group_id, cmd))
+		return "进度已重置\n当前档案编号从 {} 切换为 {}".format(current_data_slot_record, current_data_slot_record + 1)
+
 
 
 
