@@ -752,7 +752,7 @@ def subscribe_remind(self, group_id:Groupid, boss_num, group:Optional[Clan_group
 		group_id = group_id,
 		message = hint_message,
 	))
-	subscribe_cancel(self, group_id, boss_num, group)
+	subscribe_cancel(self, group_id, boss_num, None, group)
 
 #取消预约
 def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None, group:Optional[Clan_group] = None):
