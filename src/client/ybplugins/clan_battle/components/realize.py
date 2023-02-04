@@ -613,15 +613,13 @@ def challenge(self,
 	)
 
 	if defeat:
-		all_clear = 0
-		for _, _health in now_cycle_boss_health.items():
-			if _health == 0: all_clear += 1
+		all_clear = list(now_cycle_boss_health.values()).count(0)
 		if all_clear == 5:			# 检查当前周目的boss是否已经全部击杀
 			group.boss_cycle += 1	# 进入下一周目
 			next_cycle_level = self._level_by_cycle(group.boss_cycle+1, group.game_server)
 			for _boss_num, _health in next_cycle_boss_health.items():# 血量数据挪移
 				now_cycle_boss_health[_boss_num] = _health
-				if _health == 0: subscribe_remind(self, group_id, _boss_num)# 如果挪过来的血量为0，则发送预约提醒
+				if _health == 0: subscribe_remind(self, group_id, _boss_num, group)# 如果挪过来的血量为0，则发送预约提醒
 			for boss_num_, health_ in enumerate(self.bossinfo[group.game_server][next_cycle_level]):# 获取新血量数据放到下周目
 				next_cycle_boss_health[str(boss_num_+1)] = health_
 		else: real_cycle_boss_health[boss_num] = 0
@@ -738,8 +736,8 @@ def subscribe(self, group_id:Groupid, qqid:QQid, msg, note):
 		return f'预约{boss_num}王成功！下个{boss_num}王出现时会at提醒。'
 
 #预约提醒
-def subscribe_remind(self, group_id:Groupid, boss_num):
-	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
+def subscribe_remind(self, group_id:Groupid, boss_num, group:Optional[Clan_group] = None):
+	group = group or Clan_group.get_or_none(group_id=group_id)
 	subscribe_handler = SubscribeHandler(group=group)
 	boss_num = int(boss_num)
 	if not subscribe_handler.get_subscribe_list(boss_num):
@@ -755,10 +753,10 @@ def subscribe_remind(self, group_id:Groupid, boss_num):
 		group_id = group_id,
 		message = hint_message,
 	))
-	subscribe_cancel(self, group_id, boss_num)
+	subscribe_cancel(self, group_id, boss_num, None, group)
 
 #取消预约
-def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None):
+def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None, group:Optional[Clan_group] = None):
 	'''
 	取消预约特定boss
 
@@ -766,7 +764,7 @@ def subscribe_cancel(self, group_id:Groupid, boss_num, qqid = None):
 		boss_num: 几王
 		qqid: 不填为删除特定boss的整个预约记录，填则删除特定用户的单个预约记录
 	'''
-	group:Clan_group = Clan_group.get_or_none(group_id=group_id)
+	group = group or Clan_group.get_or_none(group_id=group_id)
 	if not boss_num: raise GroupError('您取消了个寂寞')
 	subscribe_handler = SubscribeHandler(group=group)
 	boss_num = int(boss_num)
