@@ -431,6 +431,22 @@ def switch_data_slot(self, group_id: Groupid, battle_id: int):
 	group.save()
 	_logger.info(f'群{group_id}切换至{battle_id}号存档')
 
+def get_available_empty_battle_id(group_id: int) -> int:
+	"""
+	获取最靠前且未使用的档案编号
+
+	:param group_id: QQ群号
+	"""
+	group = Clan_group.get_or_none(group_id=group_id)
+	if group is None: raise GroupNotExist
+	counts = []
+	for c in Clan_challenge.select(
+		Clan_challenge.bid,
+		peewee.fn.COUNT(Clan_challenge.cid).alias('record_count'),
+	).where(Clan_challenge.gid == group_id).group_by(Clan_challenge.bid,):
+		counts.append({'battle_id': c.bid, 'record_count': c.record_count})
+	return counts
+
 #向指定个人私聊发送提醒
 async def send_private_remind(self, member_list:List[QQid] = None, member_id:QQid = None, content: str = None):
 	if member_list:
