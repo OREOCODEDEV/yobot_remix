@@ -350,13 +350,16 @@ def execute(self, match_num, ctx):
 		try:
 			if (ctx['sender']['role'] not in ['owner', 'admin']) and (ctx['user_id'] not in self.setting['super-admin']):
 				return '只有管理员或主人可使用重置进度功能'
-			current_data_slot_record = self.get_data_slot_record_count(group_id)
-			self.switch_data_slot(group_id, current_data_slot_record + 1)
+			available_empty_battle_id = self.get_available_empty_battle_id(group_id)
+			group = Clan_group.get_or_none(group_id=group_id)
+			current_data_slot_record = group.battle_id
+			print(type(group_id),type(available_empty_battle_id),group_id,available_empty_battle_id,current_data_slot_record)
+			self.switch_data_slot(group_id, available_empty_battle_id)
 		except ClanBattleError as e:
 			_logger.info('群聊 失败 {} {} {}'.format(user_id, group_id, cmd))
 			return str(e)
 		_logger.info('群聊 成功 {} {} {}'.format(user_id, group_id, cmd))
-		return "进度已重置\n当前档案编号从 {} 切换为 {}".format(current_data_slot_record, current_data_slot_record + 1)
+		return "进度已重置\n当前档案编号已从 {} 切换为 {}".format(current_data_slot_record, available_empty_battle_id)
 
 
 
