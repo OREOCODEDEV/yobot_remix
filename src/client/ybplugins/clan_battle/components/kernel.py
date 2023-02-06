@@ -350,7 +350,7 @@ def execute(self, match_num, ctx):
 		try:
 			if (ctx['sender']['role'] not in ['owner', 'admin']) and (ctx['user_id'] not in self.setting['super-admin']):
 				return '只有管理员或主人可使用重置进度功能'
-			available_empty_battle_id = self.get_available_empty_battle_id(group_id)
+			available_empty_battle_id = self._get_available_empty_battle_id(group_id)
 			group = Clan_group.get_or_none(group_id=group_id)
 			current_data_slot_record = group.battle_id
 			print(type(group_id),type(available_empty_battle_id),group_id,available_empty_battle_id,current_data_slot_record)
