@@ -431,7 +431,7 @@ def switch_data_slot(self, group_id: Groupid, battle_id: int):
 	group.save()
 	_logger.info(f'群{group_id}切换至{battle_id}号存档')
 
-def _get_available_empty_battle_id(group_id: int) -> int:
+def _get_available_empty_battle_id(self, group_id: int) -> int:
 	"""
 	获取最靠前且未使用的档案编号
 
