@@ -353,7 +353,6 @@ def execute(self, match_num, ctx):
 			available_empty_battle_id = self._get_available_empty_battle_id(group_id)
 			group = Clan_group.get_or_none(group_id=group_id)
 			current_data_slot_record = group.battle_id
-			print(type(group_id),type(available_empty_battle_id),group_id,available_empty_battle_id,current_data_slot_record)
 			self.switch_data_slot(group_id, available_empty_battle_id)
 		except ClanBattleError as e:
 			_logger.info('群聊 失败 {} {} {}'.format(user_id, group_id, cmd))
