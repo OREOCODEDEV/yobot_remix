@@ -447,14 +447,16 @@ def _get_available_empty_battle_id(self, group_id: int) -> int:
 	"""
 	group = get_clan_group(self, group_id=group_id)
 	if group is None: raise GroupNotExist
-	counts = []
-	for c in Clan_challenge.select(Clan_challenge.bid).where(Clan_challenge.gid == group_id).group_by(Clan_challenge.bid):
-		counts.append(c.bid)
-	counts = sorted(counts)
+	statement = Clan_challenge.select(Clan_challenge.bid).where(Clan_challenge.gid == group_id)
+	counts = statement.count()
+	def bid_generator():
+		for i in statement.order_by(Clan_challenge.bid):
+			yield i
+	temp = bid_generator()
 	for i in range(len(counts)):
-		if i != counts[i]:
+		if i != next(temp).bid:
 			return i
-	return len(counts)
+	return counts
 
 #向指定个人私聊发送提醒
 async def send_private_remind(self, member_list:List[QQid] = None, member_id:QQid = None, content: str = None):
