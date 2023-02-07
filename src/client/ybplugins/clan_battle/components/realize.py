@@ -447,7 +447,7 @@ def _get_available_empty_battle_id(self, group_id: int) -> int:
 	"""
 	group = get_clan_group(self, group_id=group_id)
 	if group is None: raise GroupNotExist
-	statement = Clan_challenge.select(Clan_challenge.bid).where(Clan_challenge.gid == group_id)
+	statement = Clan_challenge.select(Clan_challenge.bid).where(Clan_challenge.gid == group_id).group_by(Clan_challenge.bid)
 	counts = statement.count()
 	def bid_generator():
 		for i in statement.order_by(Clan_challenge.bid):
