@@ -453,12 +453,10 @@ def _get_available_empty_battle_id(self, group_id: int) -> int:
 		for i in statement.order_by(Clan_challenge.bid):
 			yield i
 	temp = bid_generator()
-	print(counts)
-	for i in range(counts):
-		print(i, next(temp).bid)
-		# if i != next(temp).bid:
-		# 	return i
-	return counts
+	for i in range(counts): # 查找并返回档案编号中被跳过使用的编号
+		if i != next(temp).bid:
+			return i
+	return counts # 档案都已按照顺序使用，则返回顺序下新档案编号，因档案编号从0开始所以无需+1
 
 #向指定个人私聊发送提醒
 async def send_private_remind(self, member_list:List[QQid] = None, member_id:QQid = None, content: str = None):
