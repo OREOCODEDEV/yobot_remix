@@ -453,9 +453,11 @@ def _get_available_empty_battle_id(self, group_id: int) -> int:
 		for i in statement.order_by(Clan_challenge.bid):
 			yield i
 	temp = bid_generator()
+	print(counts)
 	for i in range(counts):
-		if i != next(temp).bid:
-			return i
+		print(i, next(temp).bid)
+		# if i != next(temp).bid:
+		# 	return i
 	return counts
 
 #向指定个人私聊发送提醒
