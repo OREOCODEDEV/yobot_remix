@@ -25,7 +25,7 @@ FILE_PATH = os.path.dirname(__file__)
 
 def safe_load_json(text, back = None):
 	return text and json.loads(text) or back
-def text_2_pic(self, text:string, weight:int, height:int, bg_color:Tuple, text_color:string, font_size:int, text_offset:Tuple):
+def text_2_pic(self, text:str, weight:int, height:int, bg_color:Tuple, text_color:str, font_size:int, text_offset:Tuple):
 	im = Image.new("RGB", (weight, height), bg_color)
 	dr = ImageDraw.Draw(im)
 	FONTS_PATH = os.path.join(FILE_PATH,'fonts')
