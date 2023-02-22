@@ -150,8 +150,8 @@ def execute(self, match_num, ctx):
 		if not match:
 			# 尝试使用另外的匹配模式
 			match = re.match(r'^报刀 ?([1-5])? (\d+)?([Ww万Kk千])? *(补偿|补|b|bc)? *(?:\[CQ:at,qq=(\d+)\])? *(昨[日天])?$', cmd)
-			if not match:
-				return '报刀格式:\n报刀 100w（需先申请出刀）\n报刀 -1 100w（-1表示报在1王）'
+		if not match:
+			return '报刀格式:\n报刀 100w（需先申请出刀）\n报刀 -1 100w（-1表示报在1王）'
 		unit = {
 			'W': 10000,
 			'w': 10000,
