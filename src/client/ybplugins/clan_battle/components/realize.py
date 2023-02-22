@@ -178,6 +178,11 @@ def create_group(self, group_id: Groupid, game_server, group_name=None) -> None:
 	"""
 	try:
 		group:Clan_group = get_clan_group(self, group_id)
+		if group.deleted:
+			group.deleted = False
+			group.game_server = game_server
+			group.save()
+		else : raise GroupError('群已经存在')
 	except GroupNotExist:
 		now_cycle_boss_health = {}
 		level = self._level_by_cycle(1, game_server)
@@ -194,11 +199,6 @@ def create_group(self, group_id: Groupid, game_server, group_name=None) -> None:
 			now_cycle_boss_health = json.dumps(now_cycle_boss_health),
 			next_cycle_boss_health = json.dumps(next_cycle_boss_health),
 		)
-	if group.deleted:
-		group.deleted = False
-		group.game_server = game_server
-		group.save()
-	else : raise GroupError('群已经存在')
 	self._boss_status[group_id] = asyncio.get_event_loop().create_future()
 
 	# refresh group list
