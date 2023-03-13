@@ -31,7 +31,7 @@ def text_2_pic(self, text:str, weight:int, height:int, bg_color:Tuple, text_colo
 	FONTS_PATH = os.path.join(FILE_PATH,'fonts')
 	FONTS = os.path.join(FONTS_PATH,'msyh.ttf')
 	font = ImageFont.truetype(FONTS, font_size)
-	_logger.info("Using font: {}".format(font))
+	print("Using font: {}".format(font))
 	dr.text(text_offset, text, font=font, fill=text_color)
 	bio = BytesIO()
 	im.save(bio, format='PNG')
