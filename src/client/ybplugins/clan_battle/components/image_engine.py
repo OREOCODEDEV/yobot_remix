@@ -45,11 +45,12 @@ def round_corner(image: Image.Image) -> Image.Image:
 class BossStatusImageCore:
     def __init__(
         self,
-        cyle,
-        boss_round,
-        current_hp,
-        max_hp,
-        
+        cyle: int,
+        boss_round: int,
+        current_hp: int,
+        max_hp: int,
+        name: str,
+        boss_header: Image.Image,
         background_color: Tuple[int, int, int] = (255, 255, 255),
     ) -> None:
         self.current_hp = current_hp
@@ -57,6 +58,8 @@ class BossStatusImageCore:
         self.cyle = cyle
         self.round = boss_round
         self.background_color = background_color
+        self.name = name
+        self.header = boss_header
 
     def hp_percent_image(self) -> Image.Image:
         HP_PERCENT_IMAGE_SIZE = (256, 24)
@@ -94,10 +97,4 @@ class BossStatusImageCore:
         ...
 
 
-test = BossStatusImageCore()
-test.current_hp = 47000000
-test.max_hp = 100000000
-test.hp_percent_image().show()
-test.cyle = 4
-test.round = 51
-test.cyle_round_image().show()
+BossStatusImageCore(114, 514, 123, 456).generate().show()
