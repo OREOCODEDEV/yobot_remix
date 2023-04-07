@@ -104,7 +104,7 @@ def chips_list(chips_array: Dict[str, str] = {}, text: str = "内容", backgroun
     chips_image_list = []
     for i, j in chips_array.items():
         user_profile_path = USER_HEADERS_PATH.joinpath(i + ".jpg")
-        if not user_profile_path.is_file:
+        if not user_profile_path.is_file():
             user_profile_image = Image.new("RGBA", (20, 20), (255, 255, 255, 0))
             glovar_missing_user_id.add(int(i))
         else:
@@ -196,7 +196,7 @@ class BossStatusImageCore:
         background.alpha_composite(self.cyle_round_image(), (BOSS_HEADER_SIZE + 30 + boss_name_image.width, 10))
         background.alpha_composite(self.hp_percent_image(), (BOSS_HEADER_SIZE + 20, 44))
 
-        if not BOSS_ICON_PATH.joinpath(self.boss_icon_id + ".webp").is_file:
+        if not BOSS_ICON_PATH.joinpath(self.boss_icon_id + ".webp").is_file():
             boss_icon = Image.new("RGBA", (128, 128), (255, 255, 255, 0))
         else:
             boss_icon = Image.open(BOSS_ICON_PATH.joinpath(self.boss_icon_id + ".webp"), "r")
