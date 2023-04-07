@@ -1248,19 +1248,17 @@ def challenger_info(self, group_id):
 	# 	msg[once] = ''.join(str_list)
 	# back_msg = text_2_pic(self, '\n'.join(msg), 250, (len(msg)+line)*20 + 10, (255, 255, 255), "#000000", 15, (10, 5))
 
-	current_boss_health = safe_load_json(group.now_cycle_boss_health)
-	next_boss_health = safe_load_json(group.next_cycle_boss_health)
 	challenging_list = safe_load_json(group.challenging_member_list)
+	group_boss_data = self._boss_data_dict(group)
 	image_core_instance_list = []
+	subscribe_handler = SubscribeHandler(group=group)
 	for boss_num in range(1,6):
-		boss_num = str(boss_num)
-		extra_info = {}
-		cycle = group.boss_cycle + 1 if current_boss_health[boss_num] == 0 else group.boss_cycle
-		real_health = next_boss_health[boss_num] if current_boss_health[boss_num] == 0 else current_boss_health[boss_num]
-		if challenging_list and (boss_num in challenging_list):
-			extra_info["挑战"] = {}
-			for challenger, info in challenging_list:
-				challenger = int(challenger)
+		this_boss_data = group_boss_data[boss_num]
+		boss_num_str = str(boss_num)
+		extra_info = {"预约":{}, "挑战":{}}
+		if challenging_list and (boss_num_str in challenging_list):
+			for challenger, info in challenging_list[boss_num_str].items():
+				challenger = str(challenger)
 				challenger_nickname = self._get_nickname_by_qqid(challenger)
 				challenger_msg = challenger_nickname
 				if info['is_continue']:
@@ -1271,17 +1269,31 @@ def challenger_info(self, group_id):
 				if info['damage'] > 0:
 					challenger_msg += f'@{info["s"]}s,{info["damage"]}w'
 				if info['tree']:
+					challenger_msg += '(挂树)'
 					if "挂树" not in extra_info:
 						extra_info["挂树"] = {}
 					extra_info["挂树"][challenger] = challenger_nickname
 				extra_info["挑战"][challenger] = challenger_msg
-		image_core_instance_list.append(BossStatusImageCore(0,boss_round=cycle,real_health,))
-			
+		
+		if boss_num in subscribe_handler.data:
+			subscribe_list = subscribe_handler.data[boss_num]
+			for user_id, note in subscribe_list.items():
+				extra_info["预约"][str(user_id)] = self._get_nickname_by_qqid(user_id) + f"：{note}" if note else ""
 
-
-	generate_combind_boss_state_image()
-	
-	return back_msg
+		image_core_instance_list.append(BossStatusImageCore(
+			0, 
+			this_boss_data['cycle'], 
+			this_boss_data["health"],
+			this_boss_data["full_health"],
+			this_boss_data["name"],
+			this_boss_data["icon_id"],
+			extra_info
+		))
+	result_image = generate_combind_boss_state_image(image_core_instance_list)
+	bio = BytesIO()
+	result_image.save(bio, format='PNG')
+	base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
+	return f"[CQ:image,file={base64_str}]"
 
 #出刀记录
 def challenge_record(self, group_id):

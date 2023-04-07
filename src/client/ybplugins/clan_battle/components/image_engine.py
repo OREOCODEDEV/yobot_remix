@@ -10,6 +10,7 @@ FILE_PATH = os.path.dirname(__file__)
 FONTS_PATH = os.path.join(FILE_PATH, "fonts")
 FONTS = os.path.join(FONTS_PATH, "msyh.ttf")
 USER_HEADERS_PATH = Path(__file__).parent.joinpath("../../../yobot_data/user_profile")
+BOSS_ICON_PATH = Path(__file__).parent.joinpath("../../../public/libs/yocool@final/princessadventure/boss_icon")
 if not USER_HEADERS_PATH.is_dir():
     USER_HEADERS_PATH.mkdir()
 
@@ -86,14 +87,19 @@ def user_chips(head_icon: Image.Image, user_name: str) -> Image.Image:
 
 def chips_list(chips_array: Dict[str, str] = {}, text: str = "内容", background_color: Tuple[int, int, int] = (255, 255, 255)) -> Image.Image:
     CHIPS_LIST_WIDTH = 340
-
+    background = Image.new("RGBA", (CHIPS_LIST_WIDTH, 1000), background_color)
     text_image = get_font_image("\n".join([i for i in text]), 24, (255, 255, 255))
+    if not chips_array:
+        background = background.crop((0, 0, CHIPS_LIST_WIDTH, 64))
+        background.alpha_composite(text_image, (5, center(background, text_image)[1]))
+        text_image = get_font_image(f"暂无{text}", 28, (255, 255, 255))
+        background.alpha_composite(text_image, center(background, text_image))
+        return round_corner(background, 5)
 
-    chips_image_list = list(map(lambda i: user_chips(Image.open(USER_HEADERS_PATH.joinpath(i + ".png"), "r"), chips_array[i]), chips_array))
+    chips_image_list = list(map(lambda i: user_chips(Image.open(USER_HEADERS_PATH.joinpath(i + ".jpg"), "r"), chips_array[i]), chips_array))
     chips_image_list.sort(key=lambda i: i.width)
     this_width = 34
     this_height = 5
-    background = Image.new("RGBA", (CHIPS_LIST_WIDTH, 1000), background_color)
     for this_chip in chips_image_list:
         if this_width + this_chip.width <= CHIPS_LIST_WIDTH:
             background.alpha_composite(this_chip, (this_width, this_height))
@@ -119,7 +125,7 @@ class BossStatusImageCore:
         current_hp: int,
         max_hp: int,
         name: str,
-        boss_header: Image.Image,
+        boss_icon_id: str,
         extra_chips_array: Dict[str, Dict[str, str]],
     ) -> None:
         self.current_hp = current_hp
@@ -127,7 +133,7 @@ class BossStatusImageCore:
         self.cyle = cyle
         self.round = boss_round
         self.name = name
-        self.header = boss_header
+        self.boss_icon_id = boss_icon_id
         self.extra_chips_array = extra_chips_array
 
     def hp_percent_image(self) -> Image.Image:
@@ -177,9 +183,10 @@ class BossStatusImageCore:
         background.alpha_composite(self.cyle_round_image(), (BOSS_HEADER_SIZE + 30 + boss_name_image.width, 10))
         background.alpha_composite(self.hp_percent_image(), (BOSS_HEADER_SIZE + 20, 44))
 
-        self.header = self.header.resize((128, 128))
-        self.header = round_corner(self.header, 10)
-        background.alpha_composite(self.header, (10, 10))
+        boss_icon = Image.open(BOSS_ICON_PATH.joinpath(self.boss_icon_id + ".webp"), "r")
+        boss_icon = boss_icon.resize((128, 128))
+        boss_icon = round_corner(boss_icon, 10)
+        background.alpha_composite(boss_icon, (10, 10))
 
         current_chips_height = 78
         for this_chips_list in self.extra_chips_array:
@@ -199,7 +206,7 @@ def generate_combind_boss_state_image(boss_state: List[BossStatusImageCore]) -> 
         background.paste(this_image, (0, current_y_cursor))
         current_y_cursor += this_image.height
         format_color_flag = not format_color_flag
-    return background
+    return background.crop((0, 0, background.width, current_y_cursor))
 
 
 async def download_pic(url: str, proxies: Optional[str] = None, file_name="") -> Optional[Path]:
@@ -233,37 +240,46 @@ async def download_user_profile_image(user_id_list: List[int]) -> None:
 #     1919,
 #     3000,
 #     "野兽先辈",
-#     Image.new("RGBA", (128, 128), (0, 128, 128, 255)),
+#     "301300",
 #     {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
 # ).generate().show()
-generate_combind_boss_state_image(
-    [
-        BossStatusImageCore(
-            114,
-            514,
-            1919,
-            3000,
-            "野兽先辈",
-            Image.new("RGBA", (128, 128), (0, 128, 128, 255)),
-            {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
-        ),
-        BossStatusImageCore(
-            114,
-            514,
-            1919,
-            3000,
-            "野兽先辈",
-            Image.new("RGBA", (128, 128), (0, 128, 128, 255)),
-            {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
-        ),
-        BossStatusImageCore(
-            114,
-            514,
-            1919,
-            3000,
-            "野兽先辈",
-            Image.new("RGBA", (128, 128), (0, 128, 128, 255)),
-            {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
-        ),
-    ]
-).show()
+# generate_combind_boss_state_image(
+#     [
+#         BossStatusImageCore(
+#             114,
+#             514,
+#             1919,
+#             3000,
+#             "野兽先辈",
+#             "301300",
+#             {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
+#         ),
+#         BossStatusImageCore(
+#             114,
+#             514,
+#             1919,
+#             3000,
+#             "野兽先辈",
+#             "301300",
+#             {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
+#         ),
+#         BossStatusImageCore(
+#             114,
+#             514,
+#             1919,
+#             3000,
+#             "野兽先辈",
+#             "301300",
+#             {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
+#         ),
+#         BossStatusImageCore(
+#             114,
+#             514,
+#             1919,
+#             3000,
+#             "野兽先辈",
+#             "301300",
+#             {"预约": {}, "挑战": {}},
+#         ),
+#     ]
+# ).show()
