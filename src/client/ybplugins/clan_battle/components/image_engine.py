@@ -91,6 +91,7 @@ def user_chips(head_icon: Image.Image, user_name: str) -> Image.Image:
 
 
 def chips_list(chips_array: Dict[str, str] = {}, text: str = "内容", background_color: Tuple[int, int, int] = (255, 255, 255)) -> Image.Image:
+    global glovar_missing_user_id
     CHIPS_LIST_WIDTH = 340
     background = Image.new("RGBA", (CHIPS_LIST_WIDTH, 1000), background_color)
     text_image = get_font_image("\n".join([i for i in text]), 24, (255, 255, 255))
@@ -251,5 +252,8 @@ async def download_user_profile_image(user_id_list: List[int]) -> None:
 
 
 async def download_missing_user_profile() -> None:
+    global glovar_missing_user_id
+    if not glovar_missing_user_id:
+        return
     await download_user_profile_image(list(glovar_missing_user_id))
     glovar_missing_user_id = set()
