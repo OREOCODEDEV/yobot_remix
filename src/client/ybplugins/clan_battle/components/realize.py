@@ -1278,7 +1278,7 @@ def challenger_info(self, group_id):
 		if boss_num in subscribe_handler.data:
 			subscribe_list = subscribe_handler.data[boss_num]
 			for user_id, note in subscribe_list.items():
-				extra_info["预约"][str(user_id)] = self._get_nickname_by_qqid(user_id) + f"：{note}" if note else ""
+				extra_info["预约"][str(user_id)] = self._get_nickname_by_qqid(user_id) + (f":{note}" if note else "")
 
 		image_core_instance_list.append(BossStatusImageCore(
 			0, 

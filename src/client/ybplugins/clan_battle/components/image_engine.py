@@ -27,7 +27,10 @@ def get_font_image(text: str, size: int, color: Tuple[int, int, int] = (0, 0, 0)
 
 def center(source_image: Image.Image, target_image: Image.Image) -> Tuple[int, int]:
     result = [0, 0]
-    boxes = (source_image.size, target_image.getbbox()[2:])
+    target_image_box = target_image.getbbox()
+    if target_image_box is None:
+        return (0, 0)
+    boxes = (source_image.size, target_image_box[2:])
     for i in range(2):
         result[i] = (boxes[0][i] - boxes[1][i]) / 2
     return tuple(map(lambda i: round(i), result))
