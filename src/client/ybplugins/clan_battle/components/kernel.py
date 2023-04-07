@@ -393,6 +393,16 @@ def execute(self, match_num, ctx):
 		_logger.info('群聊 成功 {} {} {}'.format(user_id, group_id, cmd))
 		return "进度已重置\n档案编号： {} -> {}".format(current_data_slot_record, available_empty_battle_id)
 
+	elif match_num == 21:  #刷新
+		try:
+			if cmd == "刷新头像":
+				asyncio.ensure_future(self._update_user_profile_image(group_id=group_id))
+				return "已刷新本公会所有成员头像"
+		except ClanBattleError as e:
+			_logger.info('群聊 失败 {} {} {}'.format(user_id, group_id, cmd))
+			return str(e)
+
+
 
 
 

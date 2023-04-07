@@ -139,6 +139,24 @@ async def _update_user_nickname_async(self, qqid, group_id = None):
 		if user.nickname is not None : self._get_nickname_by_qqid(qqid, nocache=True)
 	except Exception as e : _logger.exception(e)
 
+async def _update_user_profile_image(self, user_id:Optional[int]=None, group_id:Optional[int]=None) -> None:
+	update_qqid_list = set()
+	if not (group_id and user_id):
+		for this_user in User.select(User.qqid):
+			update_qqid_list.add(this_user.qqid)
+	if user_id:
+		update_qqid_list.add(user_id)
+	if group_id:
+		for this_user in User.select(User.qqid).where(User.clan_group_id == group_id):
+			update_qqid_list.add(this_user.qqid)
+	print(f"正在更新 {len(update_qqid_list)} 个用户头像")
+	for this_user_id in update_qqid_list:
+		print(f"正在更新用户 {this_user_id} 头像")
+		await asyncio.sleep(5)
+	print(f"头像更新完成")
+	
+	
+
 #获取boss当前数据
 def _boss_data_dict(self, group: Clan_group) -> Dict[str, Any]:
 	cycle = group.boss_cycle
