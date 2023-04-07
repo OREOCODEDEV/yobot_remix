@@ -1255,10 +1255,10 @@ def challenger_info(self, group_id):
 		if challenging_list and (boss_num_str in challenging_list):
 			for challenger, info in challenging_list[boss_num_str].items():
 				challenger = str(challenger)
-				challenger_nickname = self._get_nickname_by_qqid(challenger)
+				challenger_nickname = self._get_nickname_by_qqid(challenger)[:4]
 				challenger_msg = challenger_nickname
 				if info['is_continue']:
-					challenger_msg += '(补偿)'
+					challenger_msg += '(补)'
 				if info['behalf']:
 					behalf = self._get_nickname_by_qqid(info['behalf'])
 					challenger_msg += f'({behalf}代)'
