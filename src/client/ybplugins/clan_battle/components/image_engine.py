@@ -3,11 +3,13 @@ import os
 from typing import Tuple, List, Optional, Dict
 from pathlib import Path
 import random
+import httpx
+import asyncio
 
 FILE_PATH = os.path.dirname(__file__)
 FONTS_PATH = os.path.join(FILE_PATH, "fonts")
 FONTS = os.path.join(FONTS_PATH, "msyh.ttf")
-USER_HEADERS_PATH = Path(__file__).parent.joinpath("../../../yobot_data/user_headers")
+USER_HEADERS_PATH = Path(__file__).parent.joinpath("../../../yobot_data/user_profile")
 if not USER_HEADERS_PATH.is_dir():
     USER_HEADERS_PATH.mkdir()
 
@@ -119,13 +121,11 @@ class BossStatusImageCore:
         name: str,
         boss_header: Image.Image,
         extra_chips_array: Dict[str, Dict[str, str]],
-        background_color: Tuple[int, int, int] = (255, 255, 255),
     ) -> None:
         self.current_hp = current_hp
         self.max_hp = max_hp
         self.cyle = cyle
         self.round = boss_round
-        self.background_color = background_color
         self.name = name
         self.header = boss_header
         self.extra_chips_array = extra_chips_array
@@ -167,10 +167,10 @@ class BossStatusImageCore:
         background.alpha_composite(text_image, center(background, text_image))
         return round_corner(background)
 
-    def generate(self) -> Image.Image:
+    def generate(self, background_color: Tuple[int, int, int] = (255, 255, 255)) -> Image.Image:
         BOSS_HEADER_SIZE = 128
 
-        background = Image.new("RGBA", (498, 1000), self.background_color)
+        background = Image.new("RGBA", (498, 1000), background_color)
 
         boss_name_image = get_font_image(self.name, 24)
         background.alpha_composite(boss_name_image, (BOSS_HEADER_SIZE + 20, 10))
@@ -191,16 +191,79 @@ class BossStatusImageCore:
 
 
 def generate_combind_boss_state_image(boss_state: List[BossStatusImageCore]) -> Image.Image:
-    ...
+    background = Image.new("RGBA", (498, 3000), (255, 255, 255))
+    current_y_cursor = 0
+    format_color_flag = False
+    for this_image in boss_state:
+        this_image = this_image.generate((200, 230, 201) if format_color_flag else (255, 255, 255))
+        background.paste(this_image, (0, current_y_cursor))
+        current_y_cursor += this_image.height
+        format_color_flag = not format_color_flag
+    return background
+
+
+async def download_pic(url: str, proxies: Optional[str] = None, file_name="") -> Optional[Path]:
+    image_path = USER_HEADERS_PATH.joinpath(file_name)
+    client = httpx.AsyncClient(proxies=proxies, timeout=5)
+    try:
+        async with client.stream(method="GET", url=url, timeout=15) as response:  # type: ignore # params={"proxies": [proxies]}
+            if response.status_code != 200:
+                raise ValueError(f"Image respond status code error: {response.status_code}")
+            with open(image_path, "wb") as f:
+                async for chunk in response.aiter_bytes():
+                    f.write(chunk)
+    except Exception:
+        return None
+    finally:
+        await client.aclose()
+    return image_path
+
+
+async def download_user_profile_image(user_id_list: List[int]) -> None:
+    task_list = []
+    for this_user_id in user_id_list:
+        task_list.append(download_pic(f"http://q1.qlogo.cn/g?b=qq&nk={this_user_id}&s=1", file_name=f"{this_user_id}.jpg"))
+    await asyncio.gather(*task_list)
 
 
 # user_chips(Image.open(USER_HEADERS_PATH.joinpath("1064988363.png")), "OREO").show()
-BossStatusImageCore(
-    114,
-    514,
-    1919,
-    3000,
-    "野兽先辈",
-    Image.new("RGBA", (128, 128), (0, 128, 128, 255)),
-    {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
-).generate().show()
+# BossStatusImageCore(
+#     114,
+#     514,
+#     1919,
+#     3000,
+#     "野兽先辈",
+#     Image.new("RGBA", (128, 128), (0, 128, 128, 255)),
+#     {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
+# ).generate().show()
+generate_combind_boss_state_image(
+    [
+        BossStatusImageCore(
+            114,
+            514,
+            1919,
+            3000,
+            "野兽先辈",
+            Image.new("RGBA", (128, 128), (0, 128, 128, 255)),
+            {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
+        ),
+        BossStatusImageCore(
+            114,
+            514,
+            1919,
+            3000,
+            "野兽先辈",
+            Image.new("RGBA", (128, 128), (0, 128, 128, 255)),
+            {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
+        ),
+        BossStatusImageCore(
+            114,
+            514,
+            1919,
+            3000,
+            "野兽先辈",
+            Image.new("RGBA", (128, 128), (0, 128, 128, 255)),
+            {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
+        ),
+    ]
+).show()

@@ -396,7 +396,8 @@ def execute(self, match_num, ctx):
 	elif match_num == 21:  #刷新
 		try:
 			if cmd == "刷新头像":
-				asyncio.ensure_future(self._update_user_profile_image(group_id=group_id))
+				_logger.info(f"群 {group_id} 更新成员头像")
+				self._update_user_profile_image(group_id=group_id)
 				return "已刷新本公会所有成员头像"
 		except ClanBattleError as e:
 			_logger.info('群聊 失败 {} {} {}'.format(user_id, group_id, cmd))
