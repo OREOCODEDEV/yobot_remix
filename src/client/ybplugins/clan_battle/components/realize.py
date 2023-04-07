@@ -154,11 +154,7 @@ def _update_user_profile_image(self, user_id: Optional[Union[int,List[int]]] = N
 	if group_id:
 		for this_user in Clan_member.select().where(Clan_member.group_id == group_id):
 			update_qqid_list.add(this_user.qqid)
-	print(f"正在更新 {len(update_qqid_list)} 个用户头像")
 	asyncio.ensure_future(download_user_profile_image(list(update_qqid_list)))
-	print(f"头像更新完成")
-	
-	
 
 #获取boss当前数据
 def _boss_data_dict(self, group: Clan_group) -> Dict[str, Any]:
@@ -1289,6 +1285,7 @@ def challenger_info(self, group_id):
 			this_boss_data["icon_id"],
 			extra_info
 		))
+
 	result_image = generate_combind_boss_state_image(image_core_instance_list)
 	bio = BytesIO()
 	result_image.save(bio, format='PNG')

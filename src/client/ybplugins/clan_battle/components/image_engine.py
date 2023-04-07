@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 import os
-from typing import Tuple, List, Optional, Dict
+from typing import Tuple, List, Optional, Dict, Set
 from pathlib import Path
 import random
 import httpx
@@ -15,6 +15,8 @@ if not USER_HEADERS_PATH.is_dir():
     USER_HEADERS_PATH.mkdir()
 
 CHIPS_COLOR_LIST = [(229, 115, 115), (186, 104, 200), (149, 177, 205), (100, 181, 246), (77, 182, 172), (220, 231, 177)]
+
+glovar_missing_user_id: Set[int] = set()
 
 
 def get_font_image(text: str, size: int, color: Tuple[int, int, int] = (0, 0, 0)) -> Image.Image:
@@ -99,7 +101,15 @@ def chips_list(chips_array: Dict[str, str] = {}, text: str = "内容", backgroun
         background.alpha_composite(text_image, center(background, text_image))
         return round_corner(background, 5)
 
-    chips_image_list = list(map(lambda i: user_chips(Image.open(USER_HEADERS_PATH.joinpath(i + ".jpg"), "r"), chips_array[i]), chips_array))
+    chips_image_list = []
+    for i, j in chips_array.items():
+        user_profile_path = USER_HEADERS_PATH.joinpath(i + ".jpg")
+        if not user_profile_path.is_file:
+            user_profile_image = Image.new("RGBA", (20, 20), (255, 255, 255, 0))
+            glovar_missing_user_id.add(int(i))
+        else:
+            user_profile_image = Image.open(USER_HEADERS_PATH.joinpath(i + ".jpg"), "r")
+        chips_image_list.append(user_chips(user_profile_image, j))
     chips_image_list.sort(key=lambda i: i.width)
     this_width = 34
     this_height = 5
@@ -186,7 +196,11 @@ class BossStatusImageCore:
         background.alpha_composite(self.cyle_round_image(), (BOSS_HEADER_SIZE + 30 + boss_name_image.width, 10))
         background.alpha_composite(self.hp_percent_image(), (BOSS_HEADER_SIZE + 20, 44))
 
-        boss_icon = Image.open(BOSS_ICON_PATH.joinpath(self.boss_icon_id + ".webp"), "r")
+        if not BOSS_ICON_PATH.joinpath(self.boss_icon_id + ".webp").is_file:
+            boss_icon = Image.new("RGBA", (128, 128), (255, 255, 255, 0))
+        else:
+            boss_icon = Image.open(BOSS_ICON_PATH.joinpath(self.boss_icon_id + ".webp"), "r")
+
         boss_icon = boss_icon.resize((128, 128))
         boss_icon = round_corner(boss_icon, 10)
         background.alpha_composite(boss_icon, (10, 10))
@@ -205,7 +219,7 @@ def generate_combind_boss_state_image(boss_state: List[BossStatusImageCore]) -> 
     current_y_cursor = 0
     format_color_flag = False
     for this_image in boss_state:
-        this_image = this_image.generate((200, 230, 201) if format_color_flag else (255, 255, 255))
+        this_image = this_image.generate((249, 251, 231) if format_color_flag else (255, 255, 255))
         background.paste(this_image, (0, current_y_cursor))
         current_y_cursor += this_image.height
         format_color_flag = not format_color_flag
@@ -236,53 +250,6 @@ async def download_user_profile_image(user_id_list: List[int]) -> None:
     await asyncio.gather(*task_list)
 
 
-# user_chips(Image.open(USER_HEADERS_PATH.joinpath("1064988363.png")), "OREO").show()
-# BossStatusImageCore(
-#     114,
-#     514,
-#     1919,
-#     3000,
-#     "野兽先辈",
-#     "301300",
-#     {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
-# ).generate().show()
-# generate_combind_boss_state_image(
-#     [
-#         BossStatusImageCore(
-#             114,
-#             514,
-#             1919,
-#             3000,
-#             "野兽先辈",
-#             "301300",
-#             {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
-#         ),
-#         BossStatusImageCore(
-#             114,
-#             514,
-#             1919,
-#             3000,
-#             "野兽先辈",
-#             "301300",
-#             {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
-#         ),
-#         BossStatusImageCore(
-#             114,
-#             514,
-#             1919,
-#             3000,
-#             "野兽先辈",
-#             "301300",
-#             {"预约": {"1064988363": "OREO"}, "挑战": {"1125598078": "OREO:114514w", "1125": "OREO:这是一个长字符串", "1064988363": "就是喵", "63939": "不是喵"}},
-#         ),
-#         BossStatusImageCore(
-#             114,
-#             514,
-#             1919,
-#             3000,
-#             "野兽先辈",
-#             "301300",
-#             {"预约": {}, "挑战": {}},
-#         ),
-#     ]
-# ).show()
+async def download_missing_user_profile() -> None:
+    await download_user_profile_image(list(glovar_missing_user_id))
+    glovar_missing_user_id = set()

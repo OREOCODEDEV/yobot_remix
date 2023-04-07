@@ -12,6 +12,7 @@ from ...ybdata import Clan_group, Clan_member, User
 from ..exception import ClanBattleError, InputError
 from ..util import atqq
 from .define import Commands, Server
+from .image_engine import download_missing_user_profile
 
 _logger = logging.getLogger(__name__)
 
@@ -217,6 +218,7 @@ def execute(self, match_num, ctx):
 		if behalf : user_id = int(behalf)
 		try:
 			back_msg = self.subscribe(group_id, user_id, msg, note)
+			asyncio.ensure_future(download_missing_user_profile())
 		except ClanBattleError as e:
 			_logger.info('群聊 失败 {} {} {}'.format(user_id, group_id, cmd))
 			return str(e)
