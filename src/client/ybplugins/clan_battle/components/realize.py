@@ -1228,7 +1228,7 @@ def challenger_info(self, group_id):
 	for qqid, num in end_blade_qqid.items() :
 		if num < 0:
 			continue
-		half_challenge_list[qqid] = f'{self._get_nickname_by_qqid(qqid)}'+ (f' x {num}' if num else '')
+		half_challenge_list[str(qqid)] = f'{self._get_nickname_by_qqid(qqid)}'+ (f' x {num}' if num else '')
 
 	challenging_list = safe_load_json(group.challenging_member_list)
 	group_boss_data = self._boss_data_dict(group)
