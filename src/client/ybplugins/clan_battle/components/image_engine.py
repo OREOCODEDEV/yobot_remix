@@ -277,7 +277,6 @@ async def download_pic(url: str, proxies: Optional[str] = None, file_name="") ->
 
 
 async def download_user_profile_image(user_id_list: List[int]) -> None:
-    print(f"Downloading {len(user_id_list)} profile")
     task_list = []
     for this_user_id in user_id_list:
         task_list.append(download_pic(f"http://q1.qlogo.cn/g?b=qq&nk={this_user_id}&s=1", file_name=f"{this_user_id}.jpg"))
