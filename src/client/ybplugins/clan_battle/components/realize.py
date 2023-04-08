@@ -1246,7 +1246,7 @@ def challenger_info(self, group_id):
 				if info['is_continue']:
 					challenger_msg += '(补)'
 				if info['behalf']:
-					behalf = self._get_nickname_by_qqid(info['behalf'])
+					behalf = self._get_nickname_by_qqid(info['behalf'])[:4]
 					challenger_msg += f'({behalf}代)'
 				if info['damage'] > 0:
 					challenger_msg += f'@{info["s"]}s,{info["damage"]}w'
