@@ -1273,6 +1273,8 @@ def challenger_info(self, group_id):
 		))
 	process_image = get_process_image(finish_challenge_count, half_challenge_list)
 	result_image = generate_combind_boss_state_image(image_core_instance_list, process_image)
+	if result_image.mode != "RGB":
+		result_image = result_image.convert("RGB")
 	bio = BytesIO()
 	result_image.save(bio, format='JPEG', quality=95)
 	base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
