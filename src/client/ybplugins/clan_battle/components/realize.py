@@ -1277,7 +1277,7 @@ def challenger_info(self, group_id):
 				extra_info["预约"][str(user_id)] = self._get_nickname_by_qqid(user_id)[:4] + (f":{note}" if note else "")
 		
 		for i in extra_info:
-			for j in i:
+			for j in extra_info[i]:
 				extra_info[i][j] = extra_info[i][j][:14]
 
 		image_core_instance_list.append(BossStatusImageCore(
