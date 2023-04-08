@@ -139,10 +139,15 @@ def chips_list(chips_array: Dict[str, str] = {}, text: str = "内容", backgroun
 
 
 def get_process_image(finish_challenge_count: int, half_challenge_list: Dict[str, str]):
-    overall_image = Image.new("RGBA", (498, 225), (255, 255, 255))
-    overall_image.alpha_composite(get_font_image(f"完整刀：{finish_challenge_count}", 32), (10, 10))
-    overall_image.alpha_composite(chips_list(half_challenge_list, "补偿", (237, 231, 246)), (10, 52))
-    return overall_image
+    overall_image = Image.new("RGBA", (498, 225), (255, 255, 255, 0))
+    full_challenge_text = get_font_image(f"完整刀", 24)
+    full_challenge_count_text = get_font_image(str(finish_challenge_count), 24, (255, 0, 0))
+    overall_image.alpha_composite(full_challenge_text, (round((148 - full_challenge_text.width) / 2), 15))
+    overall_image.alpha_composite(full_challenge_count_text, (round((148 - full_challenge_count_text.width) / 2), 49))
+    overall_image.alpha_composite(chips_list(half_challenge_list, "补偿", (237, 231, 246)), (148, 10))
+    box = overall_image.getbbox()
+    overall_image = overall_image.crop((*box[:3], box[3] + 10))
+    return Image.new("RGBA", (overall_image.width + 20, overall_image.height + 20), (255, 255, 255)).paste(overall_image, (10, 10))
 
 
 class BossStatusImageCore:
