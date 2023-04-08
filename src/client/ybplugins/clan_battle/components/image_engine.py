@@ -5,6 +5,9 @@ from pathlib import Path
 import random
 import httpx
 import asyncio
+import logging
+
+_logger = logging.getLogger(__name__)
 
 FILE_PATH = os.path.dirname(__file__)
 FONTS_PATH = os.path.join(FILE_PATH, "fonts")
@@ -14,7 +17,8 @@ BOSS_ICON_PATH = Path(__file__).parent.joinpath("../../../public/libs/yocool@fin
 if not USER_HEADERS_PATH.is_dir():
     USER_HEADERS_PATH.mkdir()
 
-CHIPS_COLOR_LIST = [(229, 115, 115), (186, 104, 200), (149, 177, 205), (100, 181, 246), (77, 182, 172), (220, 231, 177)]
+# CHIPS_COLOR_LIST = [(229, 115, 115), (186, 104, 200), (149, 177, 205), (100, 181, 246), (77, 182, 172), (220, 231, 177)]
+CHIPS_COLOR_DICT = {"预约": (179, 229, 252), "挑战": (220, 237, 200), "挂树": (255, 205, 210)}
 
 glovar_missing_user_id: Set[int] = set()
 
@@ -78,7 +82,9 @@ def user_chips(head_icon: Image.Image, user_name: str) -> Image.Image:
     head_icon = head_icon.resize((20, 20))
     head_icon = round_corner(head_icon)
 
-    background_color = tuple(random.randint(10, 240) for i in range(3))
+    # background_color = tuple(random.randint(10, 240) for i in range(3))
+    # background_color = (228, 228, 228)
+    background_color = (189, 189, 189)
     is_white_text = True if ((background_color[0] * 0.299 + background_color[1] * 0.587 + background_color[2] * 0.114) / 255) < 0.5 else False
 
     user_name_image = get_font_image(user_name, 20, (255, 255, 255) if is_white_text else (0, 0, 0))
@@ -94,11 +100,12 @@ def chips_list(chips_array: Dict[str, str] = {}, text: str = "内容", backgroun
     global glovar_missing_user_id
     CHIPS_LIST_WIDTH = 340
     background = Image.new("RGBA", (CHIPS_LIST_WIDTH, 1000), background_color)
-    text_image = get_font_image("\n".join([i for i in text]), 24, (255, 255, 255))
+    is_white_text = True if ((background_color[0] * 0.299 + background_color[1] * 0.587 + background_color[2] * 0.114) / 255) < 0.5 else False
+    text_image = get_font_image("\n".join([i for i in text]), 24, (255, 255, 255) if is_white_text else (0, 0, 0))
     if not chips_array:
         background = background.crop((0, 0, CHIPS_LIST_WIDTH, 64))
         background.alpha_composite(text_image, (5, center(background, text_image)[1]))
-        text_image = get_font_image(f"暂无{text}", 28, (255, 255, 255))
+        text_image = get_font_image(f"暂无{text}", 28, (255, 255, 255) if is_white_text else (0, 0, 0))
         background.alpha_composite(text_image, center(background, text_image))
         return round_corner(background, 5)
 
@@ -208,7 +215,10 @@ class BossStatusImageCore:
 
         current_chips_height = 78
         for this_chips_list in self.extra_chips_array:
-            chips_list_image = chips_list(self.extra_chips_array[this_chips_list], this_chips_list, random.choice(CHIPS_COLOR_LIST))
+            chips_background_color = (240, 240, 240)
+            if this_chips_list in CHIPS_COLOR_DICT:
+                chips_background_color = CHIPS_COLOR_DICT[this_chips_list]
+            chips_list_image = chips_list(self.extra_chips_array[this_chips_list], this_chips_list, chips_background_color)
             background.alpha_composite(chips_list_image, (BOSS_HEADER_SIZE + 20, current_chips_height))
             current_chips_height += chips_list_image.height + 10
 
@@ -245,6 +255,7 @@ async def download_pic(url: str, proxies: Optional[str] = None, file_name="") ->
 
 
 async def download_user_profile_image(user_id_list: List[int]) -> None:
+    print(f"Downloading {len(user_id_list)} profile")
     task_list = []
     for this_user_id in user_id_list:
         task_list.append(download_pic(f"http://q1.qlogo.cn/g?b=qq&nk={this_user_id}&s=1", file_name=f"{this_user_id}.jpg"))

@@ -141,8 +141,11 @@ def execute(self, match_num, ctx):
 
 	elif match_num == 3:  # 状态
 		if cmd != '状态': return
-		try: boss_summary = self.boss_status_summary(group_id)
-		except ClanBattleError as e: return str(e)
+		try: 
+			boss_summary = self.boss_status_summary(group_id)
+			asyncio.ensure_future(download_missing_user_profile())
+		except ClanBattleError as e:
+			return str(e)
 		return boss_summary
 
 
@@ -218,7 +221,6 @@ def execute(self, match_num, ctx):
 		if behalf : user_id = int(behalf)
 		try:
 			back_msg = self.subscribe(group_id, user_id, msg, note)
-			asyncio.ensure_future(download_missing_user_profile())
 		except ClanBattleError as e:
 			_logger.info('群聊 失败 {} {} {}'.format(user_id, group_id, cmd))
 			return str(e)
