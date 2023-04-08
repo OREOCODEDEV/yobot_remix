@@ -1263,7 +1263,7 @@ def challenger_info(self, group_id):
 				extra_info["预约"][str(user_id)] = self._get_nickname_by_qqid(user_id)[:4] + (f":{note}" if note else "")
 
 		image_core_instance_list.append(BossStatusImageCore(
-			self._level_by_cycle(this_boss_data['cycle'], group.game_server), 
+			self._level_by_cycle(this_boss_data['cycle'], group.game_server) + 1, 
 			this_boss_data['cycle'], 
 			this_boss_data["health"],
 			this_boss_data["full_health"],
