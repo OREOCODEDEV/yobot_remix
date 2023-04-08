@@ -20,7 +20,7 @@ from ..util import atqq, pcr_datetime, pcr_timestamp, timed_cached_func
 from ...ybdata import Clan_challenge, Clan_group, Clan_member, User, Clan_group_backups
 from ..exception import GroupError, GroupNotExist, InputError, UserError, UserNotInGroup
 from .multi_cq_utils import who_am_i
-from .image_engine import download_user_profile_image, generate_combind_boss_state_image, BossStatusImageCore
+from .image_engine import download_user_profile_image, generate_combind_boss_state_image, BossStatusImageCore, get_process_image
 
 _logger = logging.getLogger(__name__)
 FILE_PATH = os.path.dirname(__file__)
@@ -1222,27 +1222,13 @@ def challenger_info(self, group_id):
 			end_blade_qqid[c.qqid] -= 1
 			if end_blade_qqid[c.qqid] == 0: del end_blade_qqid[c.qqid]
 
-	# line = 0
-	# finished = sum(bool(c.boss_health_remain or c.is_continue) for c in challenges)
-	# msg = [f'今天公会已出{finished}刀完整刀']
-	# if len(end_blade_qqid) > 0 :
-	# 	temp_msg = ''
-	# 	for qqid, num in end_blade_qqid.items() :
-	# 		if num > 0: temp_msg += f'{self._get_nickname_by_qqid(qqid)}*{num}，'
-	# 	temp_msg += f'还有补偿刀未出'
-	# 	msg.append(temp_msg)
-	
-	# msg.append('====================')
-	# for boss_num in range(5):
-	# 	self.challenger_info_small(group, str(boss_num+1), msg)
-	# 	msg.append('====================')
-	# for once in range(len(msg)):
-	# 	str_list = list(msg[once])
-	# 	for i in range(math.floor(len(msg[once])/21)):
-	# 		str_list.insert((i+1)*20, '\n')
-	# 		line += 1
-	# 	msg[once] = ''.join(str_list)
-	# back_msg = text_2_pic(self, '\n'.join(msg), 250, (len(msg)+line)*20 + 10, (255, 255, 255), "#000000", 15, (10, 5))
+	finish_challenge_count = sum(bool(c.boss_health_remain or c.is_continue) for c in challenges)
+
+	half_challenge_list:Dict[str,str] = {}
+	for qqid, num in end_blade_qqid.items() :
+		if num < 0:
+			continue
+		half_challenge_list[qqid] = f'{self._get_nickname_by_qqid(qqid)}'+ (f' x {num}' if num else '')
 
 	challenging_list = safe_load_json(group.challenging_member_list)
 	group_boss_data = self._boss_data_dict(group)
@@ -1275,13 +1261,9 @@ def challenger_info(self, group_id):
 			subscribe_list = subscribe_handler.data[boss_num]
 			for user_id, note in subscribe_list.items():
 				extra_info["预约"][str(user_id)] = self._get_nickname_by_qqid(user_id)[:4] + (f":{note}" if note else "")
-		
-		for i in extra_info:
-			for j in extra_info[i]:
-				extra_info[i][j] = extra_info[i][j][:14]
 
 		image_core_instance_list.append(BossStatusImageCore(
-			0, 
+			self._level_by_cycle(this_boss_data['cycle'], group.game_server), 
 			this_boss_data['cycle'], 
 			this_boss_data["health"],
 			this_boss_data["full_health"],
@@ -1289,10 +1271,10 @@ def challenger_info(self, group_id):
 			this_boss_data["icon_id"],
 			extra_info
 		))
-
-	result_image = generate_combind_boss_state_image(image_core_instance_list)
+	process_image = get_process_image(finish_challenge_count, half_challenge_list)
+	result_image = generate_combind_boss_state_image(image_core_instance_list, process_image)
 	bio = BytesIO()
-	result_image.save(bio, format='PNG')
+	result_image.save(bio, format='JPEG', quality=95)
 	base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
 	return f"[CQ:image,file={base64_str}]"
 

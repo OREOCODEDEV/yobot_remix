@@ -138,6 +138,13 @@ def chips_list(chips_array: Dict[str, str] = {}, text: str = "内容", backgroun
     return round_corner(background, 5)
 
 
+def get_process_image(finish_challenge_count: int, half_challenge_list: Dict[str, str]):
+    overall_image = Image.new("RGBA", (498, 225), (255, 255, 255))
+    overall_image.alpha_composite(get_font_image(f"完整刀：{finish_challenge_count}", 32), (10, 10))
+    overall_image.alpha_composite(chips_list(half_challenge_list, "补偿", (237, 231, 246)), (10, 52))
+    return overall_image
+
+
 class BossStatusImageCore:
     def __init__(
         self,
@@ -225,15 +232,26 @@ class BossStatusImageCore:
         return background.crop((0, 0, background.width, current_chips_height))
 
 
-def generate_combind_boss_state_image(boss_state: List[BossStatusImageCore]) -> Image.Image:
+def generate_combind_boss_state_image(boss_state: List[BossStatusImageCore], before: Optional[Image.Image] = None, after: Optional[Image.Image] = None) -> Image.Image:
     background = Image.new("RGBA", (498, 3000), (255, 255, 255))
     current_y_cursor = 0
     format_color_flag = False
+
+    if before:
+        background.paste(before, (0, 0))
+        current_y_cursor = before.height
+        format_color_flag = True
+
     for this_image in boss_state:
         this_image = this_image.generate((249, 251, 231) if format_color_flag else (255, 255, 255))
         background.paste(this_image, (0, current_y_cursor))
         current_y_cursor += this_image.height
         format_color_flag = not format_color_flag
+
+    if after:
+        background.paste(after, (0, current_y_cursor))
+        current_y_cursor += after.height
+
     return background.crop((0, 0, background.width, current_y_cursor))
 
 
