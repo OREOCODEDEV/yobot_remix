@@ -99,7 +99,7 @@ def user_chips(head_icon: Image.Image, user_name: str) -> Image.Image:
 def chips_list(chips_array: Dict[str, str] = {}, text: str = "内容", background_color: Tuple[int, int, int] = (255, 255, 255)) -> Image.Image:
     global glovar_missing_user_id
     CHIPS_LIST_WIDTH = 340
-    background = Image.new("RGBA", (CHIPS_LIST_WIDTH, 1000), background_color)
+    background = Image.new("RGBA", (CHIPS_LIST_WIDTH, 350), background_color)
     is_white_text = True if ((background_color[0] * 0.299 + background_color[1] * 0.587 + background_color[2] * 0.114) / 255) < 0.5 else False
     text_image = get_font_image("\n".join([i for i in text]), 24, (255, 255, 255) if is_white_text else (0, 0, 0))
     if not chips_array:
