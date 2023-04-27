@@ -1326,16 +1326,15 @@ def challenger_info(self, group_id):
 		],
 		{"补偿": half_challenge_list}
 	)
-	for i in range(10):
-		result_image = generate_combind_boss_state_image([process_image, *boss_state_image_list])
-		if result_image.mode != "RGB":
-			result_image = result_image.convert("RGB")
-		USER_HEADERS_PATH = Path(__file__).parent.joinpath("../../../yobot_data/cache/state/")
-		if not USER_HEADERS_PATH.is_dir():
-			USER_HEADERS_PATH.mkdir(parents=True, exist_ok=True)
-		file_name = str(group_id) + f"_{i}" + ".jpg"
-		result_image.save(USER_HEADERS_PATH.joinpath(file_name), format='JPEG', quality=95)
-		result_image.close()
+	result_image = generate_combind_boss_state_image([process_image, *boss_state_image_list])
+	if result_image.mode != "RGB":
+		result_image = result_image.convert("RGB")
+	USER_HEADERS_PATH = Path(__file__).parent.joinpath("../../../yobot_data/cache/state/")
+	if not USER_HEADERS_PATH.is_dir():
+		USER_HEADERS_PATH.mkdir(parents=True, exist_ok=True)
+	file_name = str(group_id) + ".jpg"
+	result_image.save(USER_HEADERS_PATH.joinpath(file_name), format='JPEG', quality=95)
+	result_image.close()
 	return f"[CQ:image,file=file:///{str(USER_HEADERS_PATH.joinpath(file_name))}]"
 
 #出刀记录
